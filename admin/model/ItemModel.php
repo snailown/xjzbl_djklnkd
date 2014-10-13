@@ -11,13 +11,14 @@ include_once 'BaseModel.php';
  *
  * @author koudejian
  */
-class MapModel extends BaseModel{
-    const _table = 'starcraft_map';
+class ItemModel extends BaseModel{
+    const _table = 'starcraft_video_item';
     
     const _id = 'id';
     const _name = 'name';
-    const _remark = 'remark';
-    
+    const _parent = 'parent';
+    const _have_time = 'have_time';
+//    const _final_name = 'final_name';
     
     private $key = '';
     public function __construct(){
@@ -48,26 +49,33 @@ class MapModel extends BaseModel{
         return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
     }
     
-    public function add($name, $remark){
-        return $this->db->insert(self::_table, array(self::_name => $name, self::_remark => $remark));
+    public function add($name, $parent, $have_time){
+        return $this->db->insert(self::_table, array(self::_name => $name, self::_parent => $parent, self::_have_time => $have_time));
     }
-    public function update($id, $name, $remark){
+    public function update($id, $name, $parent, $have_time){
         $id = intval($id);
         if($id == 0){
             return false;
         }
         $data = array(
             self::_name => $name,
-            self::_remark => $remark
+            self::_parent => $parent,
+            self::_have_time => $have_time,
+            
         );
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
     
-    public function getMap($id){
+    public function getItem($id){
         $id = intval($id);
         if($id == 0){
             return null;
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
+    public function getParents(){
+        return $this->db->fetch(self::_table, array(self::_parent => '0'), '', '', self::_id . ',' . self::_name );
+    }
+    
+    
 }

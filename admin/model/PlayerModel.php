@@ -95,7 +95,15 @@ class PlayerModel extends BaseModel{
        
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
-    
+    //修改战队
+    public function editTeam($tid, $pid){
+        $pid = intval($pid);
+        $tid = intval($tid);
+        if($pid > 0 && $tid > 0){
+            return $this->db->update(self::_table, array(self::_team => $tid), array(self::_id => $pid));
+        }
+        return false;
+    }
     public function get($id){
         $id = intval($id);
         if($id == 0){
@@ -103,6 +111,19 @@ class PlayerModel extends BaseModel{
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
+    public function getPlayerName($id, $url = null){
+        $player = $this->get($id);
+        if($player != null){
+            if($url != null){
+                return '<a href="'. $url . '?id='. $player[self::_id] .'">' . $player[self::_name]. '</a>';
+            }else{
+                return $player[self::_name];
+            }
+        }else{
+            return '--';
+        }
+    }
+    
     public function getTeamGroup($tid){
 //        return array('1','2', '3');
         $tid = intval($tid);
@@ -118,4 +139,70 @@ class PlayerModel extends BaseModel{
         }
         return $result;
     }
+    
+    public function getByTeam($tid){
+        $tid = intval($tid);
+        $result = '';
+        if($tid > 0){
+            $arr = $this->db->fetch(self::_table, array(self::_team => $tid), '', '', 'id');
+            foreach($arr as $temp){
+                if($temp['id'] > 0){
+                    $result .= ',' . $temp['id'];
+                }
+            }
+        }
+        $result .= ',';
+        return $result;
+    }
+    public function getPlayersNameByTeam($tid, $url = null){
+        $tid = intval($tid);
+        $result = '';
+        if($tid > 0){
+            $arr = $this->db->fetch(self::_table, array(self::_team => $tid), '', '', 'id,name');
+            foreach($arr as $temp){
+                if($temp['name'] != ''){
+                    if($url != null){
+                        $result .= '<a href="'. $url . '?id='. $temp['id'] .'">' . $temp['name']. '</a>'  . ',';
+                    }else{
+                        $result .= $temp['name'] . ',';
+                    }
+                }
+           }
+        }
+        return $result;
+    }
+    //修改战队
+    public function editTeams($tid, $players){
+        $tid = intval($tid);
+        $old = $this->getTeamGroup($tid);
+        $new = explode(',', $players);
+        //change
+        $count = count($new);
+        if($count > 0){
+            for($i = 0; $i < $count; $i++){
+                $this->editTeam($tid, $new[$i]);
+            }
+        }
+        //remove
+        $counts = count($old);
+        if($counts > 0){
+            for($i = 0; $i < $counts; $i++){
+                $temp_oldid = intval($old[$i]);
+                if($temp_oldid > 0){
+                    $flag = true;
+                    for($j = 0; $j < $count; $j++){
+                        $temp_id = intval($new[$j]);
+                        if( $temp_id > 0 && $temp_id == $temp_oldid){
+                            $flag = false;
+                        }
+                    }
+                    if($flag){
+                        $this->db->update(self::_table, array(self::_team => 0), array(self::_id => $temp_oldid));
+                    }
+                } 
+            }
+        }
+        
+        return false;
+    }   
 }

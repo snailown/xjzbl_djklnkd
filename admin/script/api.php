@@ -7,6 +7,10 @@ include_once 'common.php';
  */
 include_once DOCUMENT_ROOT . '/model/PlayerModel.php';
 include_once DOCUMENT_ROOT . '/model/PlayerImageModel.php';
+include_once DOCUMENT_ROOT . '/model/TeamImageModel.php';
+include_once DOCUMENT_ROOT . '/model/TeamModel.php';
+include_once DOCUMENT_ROOT . '/model/TeamImageModel.php';
+include_once DOCUMENT_ROOT . '/model/VideoModel.php';
 $action = $_REQUEST['action'];
 if($action == 'userLogin'){//用户登录
     //1.接收参数
@@ -20,7 +24,9 @@ if($action == 'userLogin'){//用户登录
     }
     echo json_encode(array('result'=>'1'));exit(0);
     
-}else if($action == 'handleTop'){
+}
+/*
+else if($action == 'handleTop'){
     $id = intval($_REQUEST['id']);
     $actions = $_REQUEST['flag'];
     if($id > 0 && ($actions == 'cancel' || $actions == 'set')){
@@ -34,7 +40,9 @@ if($action == 'userLogin'){//用户登录
         }
     }
     echo json_encode(array('result'=>'2'));exit(0);
-}else if($action == 'modifiedPlayer'){
+}
+//*/
+else if($action == 'modifiedPlayer'){
     //'action=modifiedPlayer&id=' + $('#cid').val() + '&name=' + $('#name').val() + '&gameid=' + $('#gameid').val() 
     //      + '&nickname=' + $('#nickname').val() + '&race=' + $('#race').val() + '&team=' + $('#team').val()
     //      + '&tags=' + $('#tags').val() + '&logourl=' + $('#logourl').val()
@@ -60,7 +68,35 @@ if($action == 'userLogin'){//用户登录
         echo json_encode(array('result'=>'0'));exit(0);
     }
     echo json_encode(array('result'=>'4'));exit(0);
-}else if($action == 'getImages'){
+}
+else if($action == 'modifiedTeam'){
+    //action=modifiedTeam&id=' + $('#cid').val() + '&name=' + $('#name').val() + '&country=' + $('#country').val() 
+    //+ '&coach=' + $('#coach').val() + '&tags=' + $('#tags').val() + '&logourl=' + $('#logourl').val()
+    $id = intval($_REQUEST['id']);
+    if($id == 0){
+        echo json_encode(array('result'=>'1'));exit(0);
+    }
+    $name = $_REQUEST['name'];
+    $country = $_REQUEST['country'];
+    $coach = $_REQUEST['coach'];
+    $leader = $_REQUEST['leader'];
+    $players = $_REQUEST['tags'];
+    $logo = $_REQUEST['logourl'];
+
+    $teamModel = new TeamModel();
+    $team = $teamModel->get($id);
+    if($team == null){
+        echo json_encode(array('result'=>'2'));exit(0);
+    }
+    $result = $teamModel->update($id, $name, $logo, $country, $coach, $leader);
+    $playerModel = new PlayerModel();
+    $playerModel->editTeams($id, $players);
+    if($result){
+        echo json_encode(array('result'=>'0'));exit(0);
+    }
+    echo json_encode(array('result'=>'4'));exit(0);
+}
+else if($action == 'getImages'){
     $id = intval($_REQUEST['id']);
     if($id == 0){
         echo json_encode(array('result'=>'1'));
@@ -74,7 +110,8 @@ if($action == 'userLogin'){//用户登录
     }else{
         echo json_encode($result);
     }
-}else if($action == 'delImage'){
+}
+else if($action == 'delImage'){
     $id = intval($_REQUEST['id']);
     if($id == 0){
 //        echo json_encode(array('result'=>'1'));
@@ -89,7 +126,62 @@ if($action == 'userLogin'){//用户登录
     }else{
         echo json_encode($result);
     }
-}else if($action == 'pickAppleApp'){
+}
+else if($action == 'getTeamImages'){
+    $id = intval($_REQUEST['id']);
+    if($id == 0){
+        echo json_encode(array('result'=>'1'));
+        exit(0);
+    }
+    $teamImageModel = new TeamImageModel();
+    $result = $teamImageModel->addTeamImage($id);
+    if($result == null){
+        echo json_encode(array('result'=>'2'));
+        exit(0);
+    }else{
+        echo json_encode($result);
+    }
+}
+else if($action == 'delTeamImage'){
+    $id = intval($_REQUEST['id']);
+    if($id == 0){
+//        echo json_encode(array('result'=>'1'));
+        exit(0);
+    }
+    $url = $_REQUEST['name'];
+    $teamImageModel = new TeamImageModel();
+    $result = $teamImageModel->delTeamImage($id, $url);
+    if($result == null){
+//        echo json_encode(array('result'=>'1'));
+        exit(0);
+    }else{
+        echo json_encode($result);
+    }
+}
+else if($action == 'modifiedVideo'){
+    $id = @intval(@$_REQUEST['id']);
+    $name = @$_REQUEST['title'];
+    $url = @$_REQUEST['url'];
+    $palyer1 = @intval(@$_REQUEST['player1']);
+    $palyer2 = @intval(@$_REQUEST['player2']);
+    $team1 = @intval(@$_REQUEST['team1']);
+    $team2 = @intval(@$_REQUEST['team2']);
+    $map = @intval(@$_REQUEST['map']);
+    $descant = @intval(@$_REQUEST['descant']);
+    $logo = @$_REQUEST['logourl'];
+//    echo json_encode(array('result'=>$_REQUEST));exit(0);
+    if($name == '' || $url == '' || $palyer1 == '' || $palyer2 == '' || $team1 == '' || $team2 == '' || $map == '' || $descant == '' ){
+        echo json_encode(array('result'=>'2'));
+        exit(0);
+    }
+    $videoMode = new VideoModel();
+    $result = $videoMode->update($id, $name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $logo);
+    if($result){
+        echo json_encode(array('result'=>'0'));exit(0);
+    }
+    echo json_encode(array('result'=>'4'));exit(0);
+}
+else if($action == 'pickAppleApp'){
     $url = $_REQUEST['url'];
 //    $url = "https://itunes.apple.com/cn/app/a+tian-xia-di-yi-fang-zhong/id343095636?mt=8";
     if($url != ''){

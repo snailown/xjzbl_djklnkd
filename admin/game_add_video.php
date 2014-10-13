@@ -1,6 +1,24 @@
 <?php
 include_once 'script/common.php';
 requireLogin();
+$title = '添加视频';
+
+include_once 'model/PlayerModel.php';
+include_once 'model/TeamModel.php';
+include_once 'model/DescantModel.php';
+include_once 'model/MapModel.php';
+
+$mapModel = new MapModel();
+$maps = $mapModel->getAllList();
+
+$descantModel = new DescantModel();
+$descants = $descantModel->getAllList();
+
+$playerModel = new PlayerModel();
+$players = $playerModel->getAllList();
+
+$teamModel = new TeamModel();
+$teams = $teamModel->getAllList();
 ?>
 <!DOCTYPE html>
 <html>
@@ -157,6 +175,7 @@ requireLogin();
     <script src='assets/javascripts/demo/inplace_editing.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/charts.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/demo.js' type='text/javascript'></script>
+    
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body class='contrast-red '>
 <?php 
@@ -176,7 +195,7 @@ requireLogin();
 <div class='page-header'>
     <h1 class='pull-left'>
         <i class='icon-dashboard'></i>
-        <span>Dashboard</span>
+        <span><?php echo $title; ?></span>
     </h1>
     <div class='pull-right'>
         <div class='btn-group'>
@@ -190,16 +209,203 @@ requireLogin();
         </div>
     </div>
 </div>
-<div class='alert alert-info' id="alert">
+<div class='alert alert-info' id="alert" style="display:none;">
     <a class='close' data-dismiss='alert' href='#'>&times;</a>
-    <strong id="msg">推荐成功...</strong>
+    <strong id="msg"></strong>
 </div>
-    
-    
+    <form enctype="multipart/form-data" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="video_details.php" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
+        <div class="control-group">
+                    <label for="inputText1" class="control-label">视频地址</label>
+                    <div class="controls">
+                        <input type="text" placeholder="视频地址" name="url" id='url'>
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label for="inputText1" class="control-label">标题</label>
+                    <div class="controls">
+                        <input type="text" placeholder="标题" name="title" id='title'>
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label class="control-label">视频缩略图</label>
+                    <div class="controls">
+                        <label class="radio inline">
+                            <input type="radio" value="1" name="uselog" onchange="showLogo(1);" checked="checked">上传缩略图
+                        </label>
+                        <label class="radio inline">
+                            <input type="radio" value="2" name="uselog" onchange="showLogo(2);">输入网络地址
+                        </label>
+                    </div>
+                </div>
+                <div class="control-group" id="logurl" style="display:none;">
+                    <label for="inputText2" class="control-label">网络地址</label>
+                    <div class="controls">
+                        <input type="text" placeholder="请输入缩略图网络地址" name="logurl">
+                    </div>
+                </div>
+                <div class="control-group" id="logfile">
+                    <label for="inputText2" class="control-label">上传缩略图</label>
+                    <div class="controls">
+                        <input type="file" placeholder="请选择缩略图" name="logfile">
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label class="control-label">选手</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player1' id='player1' style="width:200px;">
+                                        <optgroup label='选择选手'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($players as $arr){
+                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' />' . $arr[PlayerModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select> 
+                                    VS
+                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player2' id='player2' style="width:200px;">
+                                        <optgroup label='选择选手'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($players as $arr){
+                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' />' . $arr[PlayerModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>   
+        <div class="control-group">
+                    <label class="control-label">战队</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team1' id='team1' style="width:200px;">
+                                        <optgroup label='选择战队'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($teams as $arr){
+                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' />' . $arr[TeamModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select> 
+                                    VS
+                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team2' id='team2' style="width:200px;">
+                                        <optgroup label='选择战队'>
+                                            <option value="0" />请选择
+                                            <?php 
+                                                foreach($teams as $arr){
+                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' />' . $arr[TeamModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>  
+        <div class="control-group">
+                    <label class="control-label">解说</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入解说...' name='descant' id='descant' >
+                                        <optgroup label='选择解说'>
+                                            <option value="0" />请选择
+                                            <?php 
+                                                foreach($descants as $arr){
+                                                    echo '<option value=\''. $arr[DescantModel::_id] .'\' />' . $arr[DescantModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>  
+        
+        <div class="control-group">
+                    <label class="control-label">地图</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入地图...' name='map' id='map' >
+                                        <optgroup label='选择地图'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($maps as $arr){
+                                                    echo '<option value=\''. $arr[MapModel::_id] .'\' />' . $arr[MapModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div> 
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="save" onclick='onSubmit();'>
+                        <i class="icon-save"></i>
+                        Save
+                    </button>
+                    <button type="button" class="btn" id="cancel" onclick='return reload();'>Cancel</button>
+                </div>
+        <input type='hidden' name='action' id='action' value="addVideo" />
+    </form>
+    <input type='hidden' id='r' value="<?php echo $_REQUEST['r']; ?>" />
 </div>
 </div>
 </div>
 </section>
+<script src='js/common.js' type='text/javascript'></script>
+<script type="text/javascript">
+function onSubmit(){
+    if($('#url').val() == '' || 
+            $('#title').val() == '' ||
+            $('#player1').val() == '' ||
+            $('#player2').val() == '' ||
+            $('#team1').val() == '' ||
+            $('#team2').val() == '' ||
+            $('#descant').val() == '' ||
+            $('#map').val() == '' 
+            ){
+        showError('请填写完整视频信息...');
+        return false;
+    }
+    $('#myform').submit();
+}
+function reload(){
+    window.location.href = document.getElementById('r').value;
+    return false;
+}
+function showLogo(where){
+    if(where == '1'){
+        $('#logurl').hide();
+        $('#logfile').show();
+    }else{
+        $('#logurl').show();
+        $('#logfile').hide();
+    }
+}
+
+</script>
 </div>
 </body>
 </html>

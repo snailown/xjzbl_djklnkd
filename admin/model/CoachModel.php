@@ -70,4 +70,12 @@ class CoachModel extends BaseModel{
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
+    public function getCoachName($id){
+        $coach = $this->getCoach($id);
+        if($coach != null){
+            return $coach[self::_name];
+        }else{
+            return '--';
+        }
+    }
 }

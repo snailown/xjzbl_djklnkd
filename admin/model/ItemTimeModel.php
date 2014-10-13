@@ -11,8 +11,8 @@ include_once 'BaseModel.php';
  *
  * @author koudejian
  */
-class MapModel extends BaseModel{
-    const _table = 'starcraft_map';
+class ItemTimeModel extends BaseModel{
+    const _table = 'starcraft_video_item_time';
     
     const _id = 'id';
     const _name = 'name';
@@ -45,7 +45,7 @@ class MapModel extends BaseModel{
         return $this->db->doSql($sql);
     }
     public function getAllList(){
-        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
+        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name);
     }
     
     public function add($name, $remark){
@@ -63,7 +63,7 @@ class MapModel extends BaseModel{
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
     
-    public function getMap($id){
+    public function getItemTime($id){
         $id = intval($id);
         if($id == 0){
             return null;

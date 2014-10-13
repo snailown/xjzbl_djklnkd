@@ -2,17 +2,18 @@
 include_once 'script/common.php';
 requireLogin();
 
-$title = '选手列表';
+$title = '战队列表';
 
 include_once 'model/PlayerModel.php';
 include_once 'model/TeamModel.php';
-include_once 'model/RaceModel.php';
+include_once 'model/CountryModel.php';
+include_once 'model/CoachModel.php';
 include_once 'script/page.class.php';
 
-$raceModel = new RaceModel();
-$races = $raceModel->getAllList();
+$countryModel = new CountryModel();
+$countrys = $countryModel->getAllList();
 
-$race_id = intval($_REQUEST['race_id']);
+$country_id = intval($_REQUEST['country_id']);
 
 ?>
 <!DOCTYPE html>
@@ -179,7 +180,7 @@ function setStyle(obj){
 		tobj.style.display = '';
 }
 function check(id){
-    document.getElementById('race_id').value = id;
+    document.getElementById('country_id').value = id;
     document.getElementById('myform').submit();
 //    alert(id);
 }
@@ -226,29 +227,29 @@ function check(id){
     <table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;">
 		<tr>
 			<td height="30" style="cursor:pointer;font-size:14px;font-weight:bold;background-color:#CCCCCC;padding-left:5px;" onclick="setStyle('ibody');">
-				选择种族
+				选择国家
 				<span style="font-size:14px;font-weight:bold;color:#FF0000;padding-left:10px;"><?php echo $msg;?></span>
 			</td>
 		</tr>
-        <tr id="ibody" style="display:<?php if($race_id == 0){ echo 'none';} ?>">
+        <tr id="ibody" style="display:<?php if($country_id == 0){ echo 'none';} ?>">
 			<td>
 				
 				<form  enctype="multipart/form-data" name="ibodyform" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="<?php echo $_SERVER['PHP_SELF'];?>" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>	
                     <div class="control-group" >
-                        <label class="control-label">种族</label>
+                        <label class="control-label">国家</label>
                         <div class="controls">
                             <div class="row-fluid">
                                 <div class='span6'>
                                     <div class='row-fluid'>
-                                        <select class='select2 input-block-level'  placeholder='请输入种族...'  onchange="check(this.value);" >
-                                            <optgroup label='所有种族'>
-                                                <option value="0"/>所有
+                                        <select class='select2 input-block-level'  placeholder='请输入国家...'  onchange="check(this.value);" >
+                                            <optgroup label='所有国家'>
+                                                <option value="0"/>全部
                                                 <?php 
-                                                    foreach($races as $arr){
-                                                        if($arr[RaceModel::_id] == $race_id){
-                                                            echo '<option value=\''. $arr[RaceModel::_id] .'\' selected />' . $arr[RaceModel::_name]; 
+                                                    foreach($countrys as $arr){
+                                                        if($arr[CountryModel::_id] == $country_id){
+                                                            echo '<option value=\''. $arr[CountryModel::_id] .'\' selected />' . $arr[CountryModel::_name]; 
                                                         }else{
-                                                            echo '<option value=\''. $arr[RaceModel::_id] .'\' />' . $arr[RaceModel::_name]; 
+                                                            echo '<option value=\''. $arr[CountryModel::_id] .'\' />' . $arr[CountryModel::_name]; 
                                                         }
                                                         
                                                     }
@@ -263,55 +264,53 @@ function check(id){
                     </div>
                     <div class="control-group" style="margin-left:100px;margin-right: 100px;">
                         <?php 
-                            foreach($races as $arr){
+                            foreach($countrys as $arr){
                                 ?>
-                                    <button type="button" class="btn" onclick='return check(<?php echo $arr[RaceModel::_id]; ?>);' style="margin-left:10px;margin-top: 10px;"><?php echo $arr[RaceModel::_name];?></button>
+                                    <button type="button" class="btn" onclick='return check(<?php echo $arr[CountryModel::_id]; ?>);' style="margin-left:10px;margin-top: 10px;"><?php echo $arr[CountryModel::_name];?></button>
                                 <?php
                             }
                         ?>
                         
-                        <input type="hidden" name='race_id' id='race_id' value="<?php echo $race_id; ?>" />
+                        <input type="hidden" name='country_id' id='country_id' value="<?php echo $country_id; ?>" />
                     </div>  
 				</form>
 			</td>
 		</tr>
 	</table><br/>
 	<?php 
-    @$param = $key . '=' . $_REQUEST[$key] . '&race_id=' . $race_id;
-	$playerModel = new PlayerModel();
-//    $raceModel = new RaceModel();
-    $count = $playerModel->getCounts($_REQUEST[$key], $race_id);
+    @$param = $key . '=' . $_REQUEST[$key] . '&country_id=' . $country_id;
+	$teamModel = new TeamModel();
+//    $countryModel = new CountryModel();
+    $count = $teamModel->getCounts($_REQUEST[$key], $country_id);
 //    echo $count;exit;
 	$page = new page($count, $_REQUEST, $param);
 //    echo $page->getShowrows();exit;
-    $playerModel->setPage($page);
-    $result = $playerModel->getList($race_id);
+    $teamModel->setPage($page);
+    $result = $teamModel->getList($country_id);
     
-    $teamModel = new TeamModel();
+    $playerModel = new PlayerModel();
+    $coachModel = new CoachModel();
 	?>
 	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
 	<table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;text-align:center">
 		<tr bgcolor="<?php echo $page->getTitleColor();?>">
 			<th height="30">ID</th>
-            <th>名字</th>
-			<th>选手ID</th>
-			<th>外号</th>
-			<th>种族</th>
-            <th>战队</th>
-            <th>曾效力战队</th>
-            <!--<th title="点击操作">推荐状态</th>-->
+            <th>战队名称</th>
+			<th>国家</th>
+			<th>教练</th>
+			<th>队长</th>
+            <th>队员</th>
 		</tr>
 		<?php
 		foreach ($result as $arr){
 		?>
 		<tr bgcolor="<?php echo $page->getColor();?>">
-			<td height="25"><?php echo $arr[PlayerModel::_id]; ?></td>
-            <td><a href="player_details.php?id=<?php echo $arr[PlayerModel::_id]; ?>"><img style="height:15px;" src="<?php echo $arr[PlayerModel::_avatar]; ?>" border='0'/><?php echo $arr[PlayerModel::_name]; ?></a></td>
-			<td><?php echo $arr[PlayerModel::_game_id]; ?></td>
-			<td><?php echo $arr[PlayerModel::_nick]; ?></td>
-            <td><?php echo $raceModel->getRaceName($arr[PlayerModel::_race]);?></td>
-            <td><?php echo $arr[PlayerModel::_team]; ?></td>
-            <td><?php echo $teamModel->getTeamsName($arr[PlayerModel::_preteam], WEBSITE_URL .'team_details.php'); ?></td>
+			<td height="25"><?php echo $arr[TeamModel::_id]; ?></td>
+            <td><a href="team_details.php?id=<?php echo $arr[TeamModel::_id]; ?>"><img style="height:15px;" src="<?php echo $arr[TeamModel::_logo]; ?>" border='0'/><?php echo $arr[TeamModel::_name]; ?></a></td>
+			<td><?php echo $countryModel->getCountryName($arr[TeamModel::_country]);?></td>
+            <td><?php echo $coachModel->getCoachName($arr[TeamModel::_coach_id]) ; ?></td>
+            <td><?php echo $playerModel->getPlayerName($arr[TeamModel::_leader], WEBSITE_URL . 'player_details.php') ; ?></td>
+            <td><?php echo $playerModel->getPlayersNameByTeam($arr[TeamModel::_id], WEBSITE_URL . 'player_details.php'); ?></td>
             
 		</tr>
 		<?php 
@@ -335,44 +334,6 @@ function check(id){
             $("#msg").html("");
             $("#alert").hide();
         }
-    }
-    function setTop(id){
-        handleTop(id, 'set');
-    }
-    
-    function cancelTop(id){
-        handleTop(id, 'cancel');
-    }
-    
-    function handleTop(id, flag){
-
-        $.ajax({
-            type:   "post",
-            url :   "script/api.php",
-            dataType:   'json',
-            data:   'action=handleTop&id=' + id + '&flag=' + flag,
-            success:function(json){
-                if(json == null){
-                    showError("系统繁忙请稍候再试...");
-                    return;
-                }
-                if(json.result == '0' ){
-                    if(flag == 'cancel'){
-                        var htmls = '<span onclick="setTop(' + id + ');" title="点击推荐" style="color:orange;cursor:pointer;">未推荐</span>';
-                    }else{
-                        var htmls = '<span onclick="cancelTop(' + id + ');" title="点击取消推荐" style="color:green;cursor:pointer;">已推荐</span>';
-                    }
-                    showError("操作成功...");
-					$('#td' + id).html(htmls);
-				}else{
-					if(json.result == '1'){
-						showError("操作失败...");
-					}else{
-					  	showError("系统繁忙请稍候再试...");
-					} 
-				}
-			}
-        });
     }
 </script>    
 

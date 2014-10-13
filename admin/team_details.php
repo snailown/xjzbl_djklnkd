@@ -286,7 +286,7 @@ $(function() {
                         <div class="row-fluid">
                             <div class='span6'>
                                 <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入国家关键字...' name='race' id='race'>
+                                    <select class='select2 input-block-level' placeholder='请输入国家关键字...' name='country' id='country'>
                                         <optgroup label='所有国家'>
                                             <option value="0"/>请选择
                                             <?php 
@@ -337,12 +337,34 @@ $(function() {
                     </div>
                 </div>
                 <div class="control-group">
+                    <label class="control-label">队长</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入队长...' name='leader' id='leader'>
+                                        <optgroup label='所有队员'>
+                                            <option value="0"/>请选择
+                                            <?php
+                                                foreach($players as $arr){
+                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' '. isEqual($arr[PlayerModel::_id], $team[TeamModel::_coach_id]) .'/>' . $arr[PlayerModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="control-group">
                     <label class="control-label">队员</label>
                     <div class="controls">
                         <div class="row-fluid">
                             <div class='span6'>
                                 <div class='row-fluid'>
-                                    <select class='select2 input-block-level' multiple="multiple" placeholder='请输入选手...' name='types' id='types'>
+                                    <select class='select2 input-block-level' multiple="multiple" placeholder='请输入选手...' name='players' id='players'>
                                         <optgroup label='所有队员'>
                                             <?php 
                                                 $player_arr = $playerModel->getTeamGroup($team[TeamModel::_id]);
@@ -434,9 +456,8 @@ function onSubmit(){
             type:   "post",
             url :   "script/api.php",
             dataType:   'json',
-            data:   'action=modifiedPlayer&id=' + $('#cid').val() + '&name=' + $('#name').val() + '&gameid=' + $('#gameid').val() 
-            + '&nickname=' + $('#nickname').val() + '&race=' + $('#race').val() + '&team=' + $('#team').val()
-            + '&tags=' + $('#tags').val() + '&logourl=' + $('#logourl').val()
+            data:   'action=modifiedTeam&id=' + $('#cid').val() + '&name=' + $('#name').val() + '&country=' + $('#country').val() 
+            + '&coach=' + $('#coach').val() + '&tags=' + $('#tags').val() + '&logourl=' + $('#logourl').val() + '&leader=' +  $('#leader').val()
             ,
             success:function(json){
                 if(json == null){
@@ -468,7 +489,7 @@ function reload(){
  * set到id='tags' 的input中
  */
 function setTags(){
-    var obj = document.getElementById('types');
+    var obj = document.getElementById('players');
     var result = '';
     for(var i=0; i < obj.options.length; i++){
         var el = obj.options[i];
@@ -514,7 +535,7 @@ $(document).ready(function(){
                type:   "post",
                url :   "script/api.php",
                dataType:   'json',
-               data:   'action=delImage&id=' + $('#cid').val() + '&name=' + name,
+               data:   'action=delTeamImage&id=' + $('#cid').val() + '&name=' + name,
                success:function(json){
                    if(json == null){
                        showError("删除失败...");
@@ -540,10 +561,9 @@ function getImages(){
         type:   "post",
         url :   "script/api.php",
         dataType:   'json',
-        data:   'action=getImages&id=' + $('#cid').val() ,
+        data:   'action=getTeamImages&id=' + $('#cid').val() ,
         success:function(json){
             if(json == null){
-                
                 return;
             }
             var text = '';

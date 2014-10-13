@@ -2,35 +2,44 @@
 include_once 'script/common.php';
 requireLogin();
 
-$title = '应用分类';
+$title = '栏目';
 
-include_once 'model/CaseTagModel.php';
-include_once 'controller/CaseTagController.php';
+include_once 'model/ItemModel.php';
+include_once 'controller/ItemController.php';
 include_once 'script/page.class.php';
+
+//print_r($_REQUEST);
+
+$itemModel = new ItemModel();
+$types = $itemModel->getParents();
+
 $action = $_REQUEST['action'];
 $id = $_REQUEST['id'];
 if($action == 'update'){
-    $caseTagModel = new CaseTagModel();
-    $arrs = $caseTagModel->getTag($id);
+    if($itemModel == null){
+        $itemModel = new ItemModel();
+    }
+    $arrs = $itemModel->getItem($id);
 //    print_r($arrs);
 }
-if(isset($_REQUEST['add'])){//add
-    $caseTagController = new CaseTagController($_REQUEST, $_FILES);
-    if($caseTagController->addTag() > 0){
+if($_REQUEST['add'] == '1'){//add
+    $itemController = new ItemController($_REQUEST, $_FILES);
+    $aaa = $itemController->addItem();
+    if($aaa > 0){
         $msg = '添加成功';
     }else{
         $msg = '添加失败';
     }
 }
-if(isset($_REQUEST['update'])){//update
-    $caseTagController = new CaseTagController($_REQUEST, $_FILES);
-    if($caseTagController->updateTag() > 0){
+if($_REQUEST['update'] == '1'){//update
+    $itemController = new ItemController($_REQUEST, $_FILES);
+    if($itemController->updateItem() > 0){
         $msg = '修改成功';
     }else{
         $msg = '修改失败';
     }
 }
-if(isset($_REQUEST['cancel'])){
+if($_REQUEST['cancel'] == '1'){
     unset($action);
 }
 
@@ -198,6 +207,33 @@ function setStyle(obj){
 	else
 		tobj.style.display = '';
 }
+function onSubmit(){
+    if($('#name1').val() == '' || 
+            $('#name').val() == ''
+            ){
+        showError('请填写完整栏目信息...');
+        return false;
+    }
+    if($('#action').val() == 'update'){
+        $('#update').val("1");
+        $('#add').val("0");
+        $('#cancel').val("0");
+    }else{
+        $('#update').val("0");
+        $('#add').val("1");
+        $('#cancel').val("0");
+    }
+    $('#myform').submit();
+    
+}
+function reload(){
+    $('#action').val("cancel");
+    $('#cancel').val("1");
+    $('#update').val("0");
+    $('#add').val("0");
+    $('#myform').submit();
+    return false;
+}
 </script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body class='contrast-red '>
@@ -246,39 +282,52 @@ function setStyle(obj){
 		</tr>
         <tr id="ibody" style="display:<?php if($action == ''){ echo 'none';} ?>">
 			<td>
-				<form name="ibodyform" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post" enctype="multipart/form-data">
-					<table width="100%" cellpadding="1" cellspacing="1">
-						<tr>
-							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>名称：</td>
-							<td height="30"><input type="text" name="name" value="<?php echo @$arrs[CaseTagModel::_name];?>" style="width:250px;margin:0"/></td>
-						</tr>
-                        <tr>
-							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>备注：</td>
-							<td height="30"><input type="text" name="remark" value="<?php echo @$arrs[CaseTagModel::_remark];?>" style="width:250px;margin:0"/></td>
-						</tr>
-                        <tr>
-							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>图标：</td>
-							<td height="30">
-                                <?php 
-                                    if(@isset($arrs[CaseTagModel::_icon])){
-                                        echo '<image src="' . @$arrs[CaseTagModel::_icon] .'" border="0" style="margin:0;" />';
-                                    }
-                                ?>
-                                <input type="file" id="logos" name="logos" value="" style="width:250px;margin:0"/></td>
-						</tr>
-						<tr>
-							<td colspan="2" height="30" align="center">
-							<?php if($action == "update"){?>
-								<input type="hidden" name="id" value="<?php echo $id;?>"/>
-								<input type="submit" name="update" value="修改"/>
-								<input type="submit" name="cancel" value="取消"/>
-							<?php }else{?>
-								<input type="hidden" name="action" value="<?php echo $action;?>"/>
-								<input type="submit" name="add" value="提交"/>
-							<?php }?>
-							</td>
-						</tr>
-					</table>
+                <form enctype="multipart/form-data" id='myform' name="ibodyform" style="margin-bottom: 0;" method="post" class="form form-horizontal" action="<?php echo $_SERVER['PHP_SELF'];?>" accept-charset="UTF-8">
+                    <div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
+					
+                    <div class="control-group">
+                        <label class="control-label">类型</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class='span6'>
+                                    <div class='row-fluid'>
+                                        <select class='select2 input-block-level' placeholder='请输入类型...' name='name1' id='name1'>
+                                            <optgroup label='选择类型'>
+                                                <?php 
+                                                function isEqual($id, $ids){
+                                                    if($id == $ids){
+                                                        return 'selected';
+                                                    }
+                                                }
+                                                foreach($types as $arr){
+                                                    echo '<option value=\''. $arr[ItemModel::_id] .'\' ' . isEqual($arr[ItemModel::_id], $arrs[ItemModel::_parent]) . ' />' . $arr[ItemModel::_name]; 
+                                                }
+                                                ?>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="inputText1" class="control-label">名称</label>
+                        <div class="controls">
+                            <input type="text" placeholder="栏目名称" name="name" id='name' value="<?php echo $arrs[ItemModel::_name]?>">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" id="save" onclick='onSubmit();'>
+                            <i class="icon-save"></i>
+                            Save
+                        </button>
+                        <button type="button" class="btn" id="cancel" onclick='return reload();'>Cancel</button>
+                        <input type="hidden" id="action" name="action" value="<?php echo $action;?>"/>
+                        <input type="hidden" name="id" value="<?php echo $id;?>"/>
+                        <input type="hidden" id="add" name="add" value="0"/>
+                        <input type="hidden" id="update" name="update" value="0"/>
+                        <input type="hidden" id="cancel" name="cancel" value="0"/>
+                    </div>
 				</form>
 			</td>
 		</tr>
@@ -286,14 +335,27 @@ function setStyle(obj){
 	<?php 
     
     @$param = $key . '=' . $_REQUEST[$key];
-	$caseTagModel = new CaseTagModel();
-    $count = $caseTagModel->getCounts($_REQUEST[$key]);
+	$itemModel = new ItemModel();
+    $count = $itemModel->getCounts($_REQUEST[$key]);
 	$page = new page($count, $_REQUEST, $param);
 
-    $caseTagModel->setPage($page);
-    $result = $caseTagModel->getList();
+    $itemModel->setPage($page);
+    $result = $itemModel->getList();
     
-    
+    function getParentName($id, $type_arr){
+        $result = '--';
+        $id = intval($id);
+        if($id == 0){
+            return $result;
+        }
+        foreach($type_arr as $arr){
+            if($arr[ItemModel::_id] == $id){
+                $result = $arr[ItemModel::_name];
+                break;
+            }
+        }
+        return $result;
+    }
 	?>
 	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
     
@@ -301,19 +363,26 @@ function setStyle(obj){
 	<table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;text-align:center">
 		<tr bgcolor="<?php echo $page->getTitleColor();?>">
 			<th height="30">ID</th>
-			<th>类型名称</th>
-			<th>备注</th>
+			<th><?php echo $title;?>名称</th>
+			<th>所属栏目</th>
+            <th>支持年度栏目</th>
             <th title="点击操作">操作</th>
 		</tr>
 		<?php
             foreach ($result as $arr){
 		?>
             <tr bgcolor="<?php echo $page->getColor();?>">
-                <td height="25"><?php echo $arr[CaseTagModel::_id]; ?></td>
-                <td><img style="height:15px;" src="<?php echo $arr[CaseTagModel::_icon];?>" /><?php echo $arr[CaseTagModel::_name]; ?></td>
-                <td><?php echo $arr[CaseTagModel::_remark]; ?></td>
+                <td height="25"><?php echo $arr[ItemModel::_id]; ?></td>
+                <td><?php echo $arr[ItemModel::_name]; ?></td>
+                <td><?php echo getParentName($arr[ItemModel::_parent], $types); ?></td>
+                <td><?php echo $arr[ItemModel::_have_time] == '1' ? '是' : '否'; ?></td>
                 <td>
-                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[CaseTagModel::_id] . $page->getParams();?>">修改</a>
+                    <?php 
+                        if($arr[ItemModel::_parent] > 0){
+                    ?>
+                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[ItemModel::_id] . $page->getParams();?>">修改</a>
+                        
+                    <?php }else{ echo '--';} ?>
                 </td>
             </tr>
 		<?php 

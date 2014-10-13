@@ -25,7 +25,45 @@
         <span>Dashboard</span>
     </a>
 </li>
-
+<li class=''>
+    <a class='dropdown-collapse' href='#'>
+        <i class='icon-edit'></i>
+        <span>视频管理</span>
+        <i class='icon-angle-down angle-down'></i>
+    </a>
+    <ul class='nav nav-stacked'>
+        <li class=''>
+            <a href='game_add_video.php'>
+                <i class='icon-caret-right'></i>
+                <span>添加视频</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_video_list.php'>
+                <i class='icon-caret-right'></i>
+                <span>视频列表</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_item.php'>
+                <i class='icon-caret-right'></i>
+                <span>栏目</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_time_item.php'>
+                <i class='icon-caret-right'></i>
+                <span>年度栏目</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_pick.php'>
+                <i class='icon-caret-right'></i>
+                <span>采集</span>
+            </a>
+        </li>
+    </ul>
+</li>
 <li>
     <a class='dropdown-collapse ' href='#'>
         <i class='icon-tint'></i>
@@ -99,39 +137,7 @@
         </li>
     </ul>
 </li>
-<li class=''>
-    <a class='dropdown-collapse' href='#'>
-        <i class='icon-edit'></i>
-        <span>视频管理</span>
-        <i class='icon-angle-down angle-down'></i>
-    </a>
-    <ul class='nav nav-stacked'>
-        <li class=''>
-            <a href='#'>
-                <i class='icon-caret-right'></i>
-                <span>添加视频</span>
-            </a>
-        </li>
-        <li class=''>
-            <a href=''>
-                <i class='icon-caret-right'></i>
-                <span>视频列表</span>
-            </a>
-        </li>
-        <li class=''>
-            <a href=''>
-                <i class='icon-caret-right'></i>
-                <span>栏目</span>
-            </a>
-        </li>
-        <li class=''>
-            <a href=''>
-                <i class='icon-caret-right'></i>
-                <span>采集</span>
-            </a>
-        </li>
-    </ul>
-</li>
+
 </ul>
 </div>
 </nav>

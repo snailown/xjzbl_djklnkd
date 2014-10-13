@@ -298,8 +298,8 @@ $coachs = $coachModel->getAllList();
                         <div class="row-fluid">
                             <div class='span6'>
                                 <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入队长...' name='coach' id='coach'>
-                                        <optgroup label='所有队长'>
+                                    <select class='select2 input-block-level' placeholder='请输入队长...' name='leader' id='leader'>
+                                        <optgroup label='所有选手'>
                                             <option value="0"/>请选择
                                             <?php 
                                                 foreach($players as $arr){

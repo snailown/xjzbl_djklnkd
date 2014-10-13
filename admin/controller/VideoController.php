@@ -12,7 +12,7 @@ include_once 'BaseController.php';
  *
  * @author koudejian
  */
-class TeamController extends BaseController{
+class VideoController extends BaseController{
     private $file = null;
     public function __construct($arrs, $files){
         parent::__construct($arrs);
@@ -22,44 +22,33 @@ class TeamController extends BaseController{
      * 添加应用
      * @return boolean
      */
-    public function addTeam(){
+    public function addVideo(){
         //1.接收参数
-        $name = @$this->args['name'];
-        $country = @intval(@$this->args['countrys']);
-        $coach = @intval(@$this->args['coach']);
-        $leader = @intval(@$this->args['leader']);
+        $name = @$this->args['title'];
+        $url = @$this->args['url'];
+        $palyer1 = @intval(@$this->args['player1']);
+        $palyer2 = @intval(@$this->args['player2']);
+        $team1 = @intval(@$this->args['team1']);
+        $team2 = @intval(@$this->args['team2']);
+        $map = @intval(@$this->args['map']);
+        $descant = @intval(@$this->args['descant']);
         
-        $players = $this->args['tags'];
-
-        if($name == '' ){
+        if($name == '' || $url == '' || $palyer1 == '' || $palyer2 == '' || $team1 == '' || $team2 == '' || $map == '' || $descant == '' ){
             return false;
         }
         //2.准备数据
-        $uselog = @$this->args['uselog'];
-        if($uselog == '1'){
+        $thumbnails = @$this->args['uselog'];
+        if($thumbnails == '1'){
             $logo = $this->getFile();
-        }else if($uselog == '2'){
+        }else if($thumbnails == '2'){
             $logo = @$this->args['logurl'];
         }
         //3.插入数据
-        $teamMode = new TeamModel();
-        $result = $teamMode->add($name, $logo, $country, $coach, $leader);
+        $videoMode = new VideoModel();
+        $result = $videoMode->add($name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $logo);
         if($result == false || $result == null){
             return false;
         }
-        //4.修改选手所在战队
-        //*
-        if($players != '' && $result > 0){
-            $arr = explode(',', $players);
-            $count = count($arr);
-            if($count > 0){
-                $playerModel = new PlayerModel();
-                for($i = 0; $i < $count; $i++){
-                    $playerModel->editTeam($result, $arr[$i]);
-                }
-            }
-        }
-        //*/
         return $result;
     }
     

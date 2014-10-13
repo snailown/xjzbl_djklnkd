@@ -2,30 +2,29 @@
 include_once 'script/common.php';
 requireLogin();
 
-$title = '关键词';
+$title = '年度栏目';
 
-include_once 'model/CaseKeywordModel.php';
-include_once 'controller/CaseKeywordController.php';
+include_once 'model/ItemTimeModel.php';
+include_once 'controller/ItemTimeController.php';
 include_once 'script/page.class.php';
 $action = $_REQUEST['action'];
 $id = $_REQUEST['id'];
-
-
 if($action == 'update'){
-    $keywordModel = new CaseKeywordModel();
-    $arrs = $keywordModel->get($id);
+    $itemTimeModel = new ItemTimeModel();
+    $arrs = $itemTimeModel->getItemTime($id);
+//    print_r($arrs);
 }
 if(isset($_REQUEST['add'])){//add
-    $caseKeywordController = new CaseKeywordController($_REQUEST, $_FILES);
-    if($caseKeywordController->add() > 0){
+    $itemTimeController = new ItemTimeController($_REQUEST, $_FILES);
+    if($itemTimeController->addItemTime() > 0){
         $msg = '添加成功';
     }else{
         $msg = '添加失败';
     }
 }
 if(isset($_REQUEST['update'])){//update
-    $caseKeywordController = new CaseKeywordController($_REQUEST, $_FILES);
-    if($caseKeywordController->update() > 0){
+    $itemTimeController = new ItemTimeController($_REQUEST, $_FILES);
+    if($itemTimeController->updateItemTime() > 0){
         $msg = '修改成功';
     }else{
         $msg = '修改失败';
@@ -34,6 +33,7 @@ if(isset($_REQUEST['update'])){//update
 if(isset($_REQUEST['cancel'])){
     unset($action);
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -190,6 +190,15 @@ if(isset($_REQUEST['cancel'])){
     <script src='assets/javascripts/demo/inplace_editing.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/charts.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/demo.js' type='text/javascript'></script>
+<script type='text/javascript'>
+function setStyle(obj){
+	var tobj = document.getElementById(obj);
+	if(tobj.style.display == '') 
+		tobj.style.display = 'none';
+	else
+		tobj.style.display = '';
+}
+</script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body class='contrast-red '>
 <?php 
@@ -228,7 +237,6 @@ if(isset($_REQUEST['cancel'])){
     <strong id="msg"></strong>
 </div>
     
-    <script type="text/javascript" src="js/common.js"></script>
     <table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;">
 		<tr>
 			<td height="30" style="cursor:pointer;font-size:14px;font-weight:bold;background-color:#CCCCCC;padding-left:5px;" onclick="setStyle('ibody');">
@@ -236,26 +244,17 @@ if(isset($_REQUEST['cancel'])){
 				<span style="font-size:14px;font-weight:bold;color:#FF0000;padding-left:10px;"><?php echo $msg;?></span>
 			</td>
 		</tr>
-        <tr id="ibody" style="display:<?php if($action == ''){ echo 'none';}?>">
+        <tr id="ibody" style="display:<?php if($action == ''){ echo 'none';} ?>">
 			<td>
-				<form name="ibodyform" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post" >
+				<form name="ibodyform" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post" enctype="multipart/form-data">
 					<table width="100%" cellpadding="1" cellspacing="1">
-                        
 						<tr>
 							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>名称：</td>
-							<td height="30"><input type="text" name="name" value="<?php echo @$arrs[CaseKeywordModel::_name];?>" style="width:250px;margin:0"/></td>
+							<td height="30"><input type="text" name="name" value="<?php echo @$arrs[ItemTimeModel::_name];?>" style="width:250px;margin:0"/></td>
 						</tr>
-                        
                         <tr>
-							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>颜色值：</td>
-							<td height="30"><input type="text" name="color" value="<?php echo @$arrs[CaseKeywordModel::_color];?>" style="width:250px;margin:0"/></td>
-						</tr>
-                        
-						<tr>
-							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>类型：</td>
-							<td height="30"><select name="types">
-							<option value="0" <?php if(@$arrs[CaseKeywordModel::_type] == '0'){echo 'selected';}?>>随机颜色</optioin>
-							<option value="1" <?php if(@$arrs[CaseKeywordModel::_type] == '1'){echo 'selected';}?>>关键词</optioin></select></td>
+							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>备注：</td>
+							<td height="30"><input type="text" name="remark" value="<?php echo @$arrs[ItemTimeModel::_remark];?>" style="width:250px;margin:0"/></td>
 						</tr>
 						<tr>
 							<td colspan="2" height="30" align="center">
@@ -273,46 +272,42 @@ if(isset($_REQUEST['cancel'])){
 				</form>
 			</td>
 		</tr>
-        
 	</table><br/>	
 	<?php 
-     
+    
     @$param = $key . '=' . $_REQUEST[$key];
-	$caseKeywordModel = new CaseKeywordModel();
-    $count = $caseKeywordModel->getCounts($_REQUEST[$key]);
-//    echo $count;exit;
+	$itemTimeModel = new ItemTimeModel();
+    $count = $itemTimeModel->getCounts($_REQUEST[$key]);
 	$page = new page($count, $_REQUEST, $param);
-//    echo $page->getShowrows();exit;
-    $caseKeywordModel->setPage($page);
-    $result = $caseKeywordModel->getList();
+
+    $itemTimeModel->setPage($page);
+    $result = $itemTimeModel->getList();
+    
     
 	?>
 	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
+    
+    
 	<table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;text-align:center">
 		<tr bgcolor="<?php echo $page->getTitleColor();?>">
 			<th height="30">ID</th>
-			<th>关键词名称</th>
-			<th>颜色值</th>
-			<th>类型</th>
+			<th><?php echo $title;?>名称</th>
+			<th>备注</th>
             <th title="点击操作">操作</th>
 		</tr>
 		<?php
-		foreach ($result as $arr){
+            foreach ($result as $arr){
 		?>
-		<tr bgcolor="<?php echo $page->getColor();?>">
-			<td height="25"><?php echo $arr[CaseKeywordModel::_id]; ?></td>
-            <td <?php if($arr[CaseKeywordModel::_color] != ''){ echo 'style="color:' . $arr[CaseKeywordModel::_color] . '"';} ?>><?php echo $arr[CaseKeywordModel::_name]; ?></td>
-			<td><?php echo $arr[CaseKeywordModel::_color]; ?></td>
-			<td <?php if($arr[CaseKeywordModel::_type] == '1'){ echo 'style="color:green;"';}else{echo 'style="color:orange;"';}?> >
-                <?php if($arr[CaseKeywordModel::_type] == '0'){ echo '随机颜色';}else{echo '关键词';} ?>
-            </td>
-            <td>
-                <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[CaseKeywordModel::_id] . $page->getParams();?>">修改</a>
-            </td>
-		</tr>
+            <tr bgcolor="<?php echo $page->getColor();?>">
+                <td height="25"><?php echo $arr[ItemTimeModel::_id]; ?></td>
+                <td><?php echo $arr[ItemTimeModel::_name]; ?></td>
+                <td><?php echo $arr[ItemTimeModel::_remark]; ?></td>
+                <td>
+                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[ItemTimeModel::_id] . $page->getParams();?>">修改</a>
+                </td>
+            </tr>
 		<?php 
-		}
-       
+            }
 		?>
 	</table>
     

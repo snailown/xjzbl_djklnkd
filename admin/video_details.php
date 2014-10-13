@@ -1,23 +1,47 @@
 <?php
 include_once 'script/common.php';
 requireLogin();
+$title = '选手详情';
 
-$title = '应用列表';
+include_once 'model/PlayerModel.php';
+include_once 'model/TeamModel.php';
+include_once 'model/DescantModel.php';
+include_once 'model/MapModel.php';
 
-include_once 'model/CaseModel.php';
-include_once 'model/CaseTagModel.php';
-include_once 'script/page.class.php';
+include_once 'model/VideoModel.php';
+include_once 'controller/VideoController.php';
 
-$tagModel = new CaseTagModel();
-$tags = $tagModel->getAllList();
+$mapModel = new MapModel();
+$maps = $mapModel->getAllList();
 
-$tag_id = intval($_REQUEST['tag_id']);
+$descantModel = new DescantModel();
+$descants = $descantModel->getAllList();
+
+$playerModel = new PlayerModel();
+$players = $playerModel->getAllList();
+
+$teamModel = new TeamModel();
+$teams = $teamModel->getAllList();
+
+$id = intval($_REQUEST['id']);
+
+if(@$_REQUEST['action'] == 'addVideo'){//add video
+//    print_r($_REQUEST);
+    $videoController = new VideoController($_REQUEST, $_FILES);
+    $id = $videoController->addVideo();
+}
+if($id == 0){
+    header('Location:err_404.html');
+}
+
+$videoModel = new VideoModel();
+$video = $videoModel->get($id);
 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo TITLE . '-' . $title;?></title>
+    <title><?php echo TITLE?></title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport' />
     
     <!--[if lt IE 9]>
@@ -169,21 +193,17 @@ $tag_id = intval($_REQUEST['tag_id']);
     <script src='assets/javascripts/demo/inplace_editing.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/charts.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/demo.js' type='text/javascript'></script>
-<script type='text/javascript'>
-function setStyle(obj){
-	var tobj = document.getElementById(obj);
-	if(tobj.style.display == '') 
-		tobj.style.display = 'none';
-	else
-		tobj.style.display = '';
-}
-function check(id){
-    document.getElementById('tag_id').value = id;
-    document.getElementById('myform').submit();
-//    alert(id);
-}
-</script>
+    
+<script src='js/common.js' type='text/javascript'></script>
+<script src="upload/jquery.uploadify.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="upload/uploadify.css">  
+
+    
+    
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
+
+
+
 <body class='contrast-red '>
 <?php 
     include_once 'header.php';
@@ -206,173 +226,200 @@ function check(id){
     </h1>
     <div class='pull-right'>
         <div class='btn-group'>
-            <a href="#" class="btn btn-white hidden-phone">Last month</a>
-            <a href="#" class="btn btn-white">Last week</a>
-            <a href="#" class="btn btn-white ">Today</a>
-            <a href="#" class="btn btn-white" id="daterange"><i class='icon-calendar'></i>
-                <span class='hidden-phone'>Custom</span>
-                <b class='caret'></b>
-            </a>
+            <button class='btn btn-warning cancel' type='back' id="back">
+                <i class='icon-ban-circle icon-white'></i>
+                <span>Back</span>
+            </button>
         </div>
     </div>
 </div>
-<div style="height:55px">
-    <div class='alert alert-info' id="alert" style="display:none;">
-        <a class='close' data-dismiss='alert' href='#'>&times;</a>
-        <strong id="msg"></strong>
-    </div>  
+<div class='alert alert-info' id="alert" style="display:none;">
+    <a class='close' data-dismiss='alert' href='#'>&times;</a>
+    <strong id="msg"></strong>
 </div>
-    <table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;">
-		<tr>
-			<td height="30" style="cursor:pointer;font-size:14px;font-weight:bold;background-color:#CCCCCC;padding-left:5px;" onclick="setStyle('ibody');">
-				选择应用类型
-				<span style="font-size:14px;font-weight:bold;color:#FF0000;padding-left:10px;"><?php echo $msg;?></span>
-			</td>
-		</tr>
-        <tr id="ibody" style="display:<?php if($tag_id == 0){ echo 'none';} ?>">
-			<td>
-				
-				<form  enctype="multipart/form-data" name="ibodyform" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="<?php echo $_SERVER['PHP_SELF'];?>" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>	
-                    <div class="control-group" >
-                        <label class="control-label">应用分类</label>
-                        <div class="controls">
-                            <div class="row-fluid">
-                                <div class='span6'>
-                                    <div class='row-fluid'>
-                                        <select class='select2 input-block-level'  placeholder='请输入类型...'  onchange="check(this.value);" >
-                                            <optgroup label='所有类型'>
-                                                <?php 
-                                                    foreach($tags as $arr){
-                                                        if($arr[CaseTagModel::_id] == $tag_id){
-                                                            echo '<option value=\''. $arr[CaseTagModel::_id] .'\' selected />' . $arr[CaseTagModel::_name]; 
-                                                        }else{
-                                                            echo '<option value=\''. $arr[CaseTagModel::_id] .'\' />' . $arr[CaseTagModel::_name]; 
-                                                        }
-                                                        
+    <form enctype="multipart/form-data" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
+                <div class="control-group">
+                    <label for="inputText1" class="control-label">视频地址</label>
+                    <div class="controls">
+                        <input type="text" placeholder="视频地址" name="url" id='url' value="<?php echo @$video[VideoModel::_url];?>">
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label for="inputText1" class="control-label">标题</label>
+                    <div class="controls">
+                        <input type="text" placeholder="标题" name="title" id='title' value="<?php echo @$video[VideoModel::_name];?>">
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label for="inputText1" class="control-label">缩略图</label>
+                    <div class="controls" id="logo_view">
+                        <image border="0" src="<?php echo $video[VideoModel::_thumbnails]?>" style="float:left;margin-right:10px;max-height:30px;"/>
+                    </div>
+                </div> 
+        <div class="control-group" id="logurl" >
+                    <label for="inputText2" class="control-label">缩略图地址</label>
+                    <div class="controls">
+                        <input type="text" placeholder="请输缩略图地址" name="logourl" id="logourl" value="<?php echo $video[VideoModel::_thumbnails]?>">
+                    </div>
+                </div>
+        <div class="control-group">
+                    <label class="control-label">选手</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player1' id='player1' style="width:200px;">
+                                        <optgroup label='选择选手'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                function isEqual($id, $ids){
+                                                    if($id == $ids){
+                                                        return 'selected';
                                                     }
-                                                ?>
-                                            </optgroup>
-                                        </select>
-                                    </div>
+                                                }
+                                                foreach($players as $arr){
+                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' '. isEqual($arr[PlayerModel::_id], $video[VideoModel::_player_one]) . ' />' . $arr[PlayerModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select> 
+                                    VS
+                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player2' id='player2' style="width:200px;">
+                                        <optgroup label='选择选手'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($players as $arr){
+                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' '. isEqual($arr[PlayerModel::_id], $video[VideoModel::_player_two]) . '/>' . $arr[PlayerModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
-                    <div class="control-group" style="margin-left:100px;margin-right: 100px;">
-                        <?php 
-                            foreach($tags as $arr){
-                                ?>
-                                    <button type="button" class="btn" onclick='return check(<?php echo $arr[CaseTagModel::_id]; ?>);' style="margin-left:10px;margin-top: 10px;"><?php echo $arr[CaseTagModel::_name];?></button>
-                                <?php
-                            }
-                        ?>
-                        
-                        <input type="hidden" name='tag_id' id='tag_id' value="<?php echo $tag_id; ?>" />
-                    </div>  
-				</form>
-			</td>
-		</tr>
-	</table><br/>
-	<?php 
-    if($tag_id == 0){
-        $tag_id = 1;
-    }
-    @$param = $key . '=' . $_REQUEST[$key] . '&tag_id=' . $tag_id;
-	$caseModel = new CaseModel();
-    $caseTagModel = new CaseTagModel();
-    $count = $caseModel->getCounts($_REQUEST[$key], $tag_id);
-//    echo $count;exit;
-	$page = new page($count, $_REQUEST, $param);
-//    echo $page->getShowrows();exit;
-    $caseModel->setPage($page);
-    $result = $caseModel->getList($tag_id);
-	?>
-	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
-	<table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;text-align:center">
-		<tr bgcolor="<?php echo $page->getTitleColor();?>">
-			<th height="30">ID</th>
-			<th>应用名</th>
-			<th>版本号</th>
-			<th>版本名称</th>
-			<th>发布时间</th>
-            <th>类型</th>
-            <th>IOS下载</th>
-            <th>Android下载</th>
-            <th title="点击操作">推荐状态</th>
-		</tr>
-		<?php
-		foreach ($result as $arr){
-		?>
-		<tr bgcolor="<?php echo $page->getColor();?>">
-			<td height="25"><?php echo $arr[CaseModel::_id]; ?></td>
-            <td><a href="case_details.php?id=<?php echo $arr[CaseModel::_id]; ?>"><img style="height:15px;" src="<?php echo $arr[CaseModel::_logo];?>" border='0'/><?php echo $arr[CaseModel::_name]; ?></a></td>
-			<td><?php echo $arr[CaseModel::_no]; ?></td>
-			<td><?php echo $arr[CaseModel::_vname]; ?></td>
-			<td><?php echo $arr[CaseModel::_time]; ?></td>
-            <td><?php echo $caseTagModel->getTagNames($arr[CaseModel::_tag_id]);?></td>
-            <td><?php echo $arr[CaseModel::_url]; ?></td>
-            <td><?php echo $arr[CaseModel::_url_android]; ?></td>
-            <td id="<?php echo 'td' . $arr[CaseModel::_id];?>">
-                <?php
-                if($arr[CaseModel::_top] == '0'){
-                    echo '<span style="color:orange;cursor:pointer;" title="点击推荐" onclick="setTop('. $arr[CaseModel::_id]. ');">未推荐</span>';
-                }else{
-                    echo '<span style="color:green;cursor:pointer;" title="点击取消推荐" onclick="cancelTop(' . $arr[CaseModel::_id] . ');">已推荐</span>';
-                }
-                ?>
-            </td>
-		</tr>
-		<?php 
-		}
-		?>
-	</table>
-    
+                </div>   
+        <div class="control-group">
+                    <label class="control-label">战队</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team1' id='team1' style="width:200px;">
+                                        <optgroup label='选择战队'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($teams as $arr){
+                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' '. isEqual($arr[TeamModel::_id], $video[VideoModel::_team_one]) . '/>' . $arr[TeamModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select> 
+                                    VS
+                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team2' id='team2' style="width:200px;">
+                                        <optgroup label='选择战队'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($teams as $arr){
+                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' '. isEqual($arr[TeamModel::_id], $video[VideoModel::_team_two]) . '/>' . $arr[TeamModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>  
+        <div class="control-group">
+                    <label class="control-label">解说</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入解说...' name='descant' id='descant' >
+                                        <optgroup label='选择解说'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($descants as $arr){
+                                                    echo '<option value=\''. $arr[DescantModel::_id] .'\' '. isEqual($arr[DescantModel::_id], $video[VideoModel::_descant]) . '/>' . $arr[DescantModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>  
+        
+        <div class="control-group">
+                    <label class="control-label">地图</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class='span6'>
+                                <div class='row-fluid'>
+                                    <select class='select2 input-block-level' placeholder='请输入地图...' name='map' id='map' >
+                                        <optgroup label='选择地图'>
+                                            <option value="0"/>请选择
+                                            <?php 
+                                                foreach($maps as $arr){
+                                                    echo '<option value=\''. $arr[MapModel::_id] .'\' '. isEqual($arr[MapModel::_id], $video[VideoModel::_map]) . '/>' . $arr[MapModel::_name]; 
+                                                }
+                                            ?>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div> 
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="save" onclick='onSubmit();'>
+                        <i class="icon-save"></i>
+                        Save
+                    </button>
+                    <button type="button" class="btn" id="cancel" onclick='return reload();'>Cancel</button>
+                </div>
+        <input type='hidden' name='tags' id='tags' value="" />
+        <input type='hidden' value='<?php echo $id;?>' id='cid' />
+    </form>
+    <input type='hidden' id='r' value="<?php echo $_REQUEST['r']; ?>" />
+       
 </div>
 </div>
 </div>
 </section>
-</div>
+<script src='js/common.js' type='text/javascript'></script>
 <script type="text/javascript">
-    function showError(msg){
-        if(msg){
-            $("#msg").html(msg);
-            $("#alert").fadeIn(1000, function(){
-                $("#alert").fadeOut(2000);
-            });
-        }else{
-            $("#msg").html("");
-            $("#alert").hide();
-        }
+function onSubmit(){
+    if($('#name').val() == '' || 
+            $('#gameid').val() == '' ||
+            $('#nickname').val() == ''
+            ){
+        showError('请填写完整应用信息...');
+        return false;
     }
-    function setTop(id){
-        handleTop(id, 'set');
-    }
-    
-    function cancelTop(id){
-        handleTop(id, 'cancel');
-    }
-    
-    function handleTop(id, flag){
-
-        $.ajax({
+    $.ajax({
             type:   "post",
             url :   "script/api.php",
             dataType:   'json',
-            data:   'action=handleTop&id=' + id + '&flag=' + flag,
+            data:   'action=modifiedVideo&id=' + $('#cid').val() + '&url=' + $('#url').val() + '&title=' + $('#title').val() 
+            + '&logourl=' + $('#logourl').val() + '&player1=' + $('#player1').val() + '&player2=' + $('#player2').val()
+            + '&team1=' + $('#team1').val() + '&team2=' + $('#team2').val() + '&descant=' + $('#descant').val() + '&map=' + $('#map').val()
+            ,
             success:function(json){
                 if(json == null){
-                    showError("系统繁忙请稍候再试...");
+                    showError("系统繁忙请稍候再试..");
                     return;
                 }
                 if(json.result == '0' ){
-                    if(flag == 'cancel'){
-                        var htmls = '<span onclick="setTop(' + id + ');" title="点击推荐" style="color:orange;cursor:pointer;">未推荐</span>';
-                    }else{
-                        var htmls = '<span onclick="cancelTop(' + id + ');" title="点击取消推荐" style="color:green;cursor:pointer;">已推荐</span>';
-                    }
                     showError("操作成功...");
-					$('#td' + id).html(htmls);
+                    
 				}else{
 					if(json.result == '1'){
 						showError("操作失败...");
@@ -381,9 +428,16 @@ function check(id){
 					} 
 				}
 			}
-        });
-    }
-</script>    
+    });
+    
+}
+function reload(){
+    window.location.href = document.getElementById('r').value;
+    return false;
+}
 
+
+</script>
+</div>
 </body>
 </html>

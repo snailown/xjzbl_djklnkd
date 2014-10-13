@@ -1,6 +1,7 @@
 <?php
 include_once 'script/common.php';
 requireLogin();
+include_once 'model/PlayerModel.php';
 include_once 'model/TeamModel.php';
 include_once 'controller/TeamController.php';
 

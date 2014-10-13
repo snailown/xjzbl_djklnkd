@@ -45,7 +45,7 @@ class DescantModel extends BaseModel{
         return $this->db->doSql($sql);
     }
     public function getAllList(){
-        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name . ',' . self::_search);
+        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
     }
     
     public function add($name, $remark){
