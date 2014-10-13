@@ -1,15 +1,7 @@
 <?php
 include_once 'script/common.php';
 requireLogin();
-$title = '采集苹果应用';
-
-
-include_once 'model/CaseTagModel.php';
-include_once 'model/CaseModel.php';
-$tagModel = new CaseTagModel();
-$tags = $tagModel->getAllList();
-$caseModel = new CaseModel();
-$case = $caseModel->search();
+$title = '采集优酷视频';
 
 ?>
 <!DOCTYPE html>
@@ -207,9 +199,10 @@ $case = $caseModel->search();
 </div>
     <form enctype="multipart/form-data" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
                 <div class="control-group">
-                    <label for="inputText1" class="control-label">苹果应用地址</label>
+                    <label for="inputText1" class="control-label">采集列表地址</label>
                     <div class="controls">
-                        <input type="text" placeholder="苹果应用地址" name="url" id="url" value="">
+                        <input type="text" placeholder="采集列表地址" name="url" id="url" value="" title="采集网址需要以“http://www.youku.com/playlist_show”或者“http://www.soku.com/search_playlistdetail”开头...">
+                        <br/><span style="color:red;">*<span><span style="color:gray;">采集网址需要以“http://www.youku.com/playlist_show”或者“http://www.soku.com/search_playlistdetail”开头...</span>
                     </div>
                 </div>
                 
@@ -229,13 +222,13 @@ $case = $caseModel->search();
 <script type="text/javascript">
 function onSubmit(){
     if($('#url').val() == '' ){
-        showError('请填写苹果应用URL信息...');
+        showError('请填写视频URL信息...');
     }else{
         $.ajax({
             type:   "post",
             url :   "script/api.php",
             dataType:   'json',
-            data:   'action=pickAppleApp&url='+encodeURIComponent($("#url").val()),
+            data:   'action=pickVideo&url='+encodeURIComponent($("#url").val()),
             success:function(json){
                 if(json == null){
                     showError("系统繁忙请稍候再试...");

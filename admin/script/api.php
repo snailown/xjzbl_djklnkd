@@ -181,16 +181,11 @@ else if($action == 'modifiedVideo'){
     }
     echo json_encode(array('result'=>'4'));exit(0);
 }
-else if($action == 'pickAppleApp'){
+else if($action == 'pickVideo'){
     $url = $_REQUEST['url'];
-//    $url = "https://itunes.apple.com/cn/app/a+tian-xia-di-yi-fang-zhong/id343095636?mt=8";
     if($url != ''){
-        $command = 'sh /shell/pick.sh ' . $url;
-//        $command = 'sh /shell/test.sh >> /shell/logs';
+        $command = 'sh /shell/pickVideo.sh ' . $url;
         $result = shell_exec($command);
-//        $result = @system($command);
-//        $result = exec($command);echo json_encode($result);exit(0);
-//        $result = exec($command);
         echo json_encode(array('result' => $result ));exit(0);
     }else{
         echo json_encode(array('result' => '0'));exit(0);
