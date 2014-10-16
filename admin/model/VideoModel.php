@@ -18,13 +18,13 @@ class VideoModel extends BaseModel{
     const _name = 'name';
     const _thumbnails = 'thumbnails';
     const _url = 'url';
-    const _player_one = 'player_one_id';
-    const _player_two = 'player_two_id';
-    const _team_one = 'team_one_id';
-    const _team_two = 'team_two_id';
     const _map = 'map_id';
     const _descant = 'descant_id';
     const _during = 'during';
+    const _times = 'times';
+    const _item_id = 'item_id';
+    const _match_id = 'match_id';
+    const _fixtures_id = 'fixtures_id';
     
     private $key = '';
     public function __construct(){
@@ -67,23 +67,23 @@ class VideoModel extends BaseModel{
     public function getAllList(){
         return $this->db->fetch(self::_table, '', '', '', '*');
     }
+    public function getAllNameList(){
+        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name . ',' . self::_url);
+    }
     
-    public function add($name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $thumbnails=''){
+    public function add($name, $url, $map, $descant, $thumbnails=''){
         return $this->db->insert(self::_table, 
                 array(
                     self::_name => $name, 
                     self::_url => $url, 
-                    self::_player_one => $palyer1,
-                    self::_player_two => $palyer2, 
-                    self::_team_one => $team1, 
-                    self::_team_two => $team2,
+ 
                     self::_map => $map,
                     self::_descant => $descant,
                     self::_thumbnails => $thumbnails,
                 ));
     }
     
-    public function update($id, $name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $thumbnails=''){
+    public function update($id, $name, $url, $map, $descant, $thumbnails=''){
         $id = intval($id);
         if($id == 0){
             return false;
@@ -91,10 +91,6 @@ class VideoModel extends BaseModel{
         $data = array(
                     self::_name => $name, 
                     self::_url => $url, 
-                    self::_player_one => $palyer1,
-                    self::_player_two => $palyer2, 
-                    self::_team_one => $team1, 
-                    self::_team_two => $team2,
                     self::_map => $map,
                     self::_descant => $descant,
                     self::_thumbnails => $thumbnails,
@@ -109,5 +105,19 @@ class VideoModel extends BaseModel{
             return null;
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
+    }
+    
+    public function updateMatch($id, $mid, $fid){
+        $id = intval($id);
+        $mid = intval($mid);
+        $fid = intval($fid);
+        if($id > 0 && $mid > 0 && $fid > 0){
+            $data = array(
+                    self::_item_id => 0, 
+                    self::_match_id => $mid, 
+                    self::_fixtures_id => $fid,
+                );
+            return $this->db->update(self::_table, $data, array(self::_id => $id));
+        }
     }
 }

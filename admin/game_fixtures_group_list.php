@@ -1,45 +1,44 @@
 <?php
 include_once 'script/common.php';
 requireLogin();
-$title = '视频详情';
 
-include_once 'model/DescantModel.php';
-include_once 'model/MapModel.php';
+$title = '分组';
 
-include_once 'model/VideoModel.php';
-include_once 'controller/VideoController.php';
-
-$mapModel = new MapModel();
-$maps = $mapModel->getAllList();
-//print_r($maps); exit;
-$descantModel = new DescantModel();
-$descants = $descantModel->getAllList();
-//print_r($descants);exit;
-$id = intval($_REQUEST['id']);
-
-if(@$_REQUEST['action'] == 'addVideo'){//add video
-//    print_r($_REQUEST);
-    $videoController = new VideoController($_REQUEST, $_FILES);
-    $id = $videoController->addVideo();
+include_once 'model/FixturesGroupModel.php';
+include_once 'controller/FixturesGroupController.php';
+include_once 'script/page.class.php';
+$action = $_REQUEST['action'];
+$id = $_REQUEST['id'];
+if($action == 'update'){
+    $fixturesGroupModel = new FixturesGroupModel();
+    $arrs = $fixturesGroupModel->get($id);
+//    print_r($arrs);
 }
-if($id == 0){
-    header('Location:err_404.html');
-}
-
-$videoModel = new VideoModel();
-$video = $videoModel->get($id);
-
-function isEqual($id, $ids){
-    if($id == $ids){
-        return 'selected';
+if(isset($_REQUEST['add'])){//add
+    $fixturesGroupController = new FixturesGroupController($_REQUEST, $_FILES);
+    if($fixturesGroupController->addFixturesGroup() > 0){
+        $msg = '添加成功';
+    }else{
+        $msg = '添加失败';
     }
 }
-                                                
+if(isset($_REQUEST['update'])){//update
+    $fixturesGroupController = new FixturesGroupController($_REQUEST, $_FILES);
+    if($fixturesGroupController->updateFixturesGroup() > 0){
+        $msg = '修改成功';
+    }else{
+        $msg = '修改失败';
+    }
+}
+if(isset($_REQUEST['cancel'])){
+    unset($action);
+}
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo TITLE?></title>
+    <title><?php echo TITLE . '-' . $title;?></title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport' />
     
     <!--[if lt IE 9]>
@@ -191,17 +190,16 @@ function isEqual($id, $ids){
     <script src='assets/javascripts/demo/inplace_editing.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/charts.js' type='text/javascript'></script>
     <script src='assets/javascripts/demo/demo.js' type='text/javascript'></script>
-    
-<script src='js/common.js' type='text/javascript'></script>
-<script src="upload/jquery.uploadify.js" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="upload/uploadify.css">  
-
-    
-    
+<script type='text/javascript'>
+function setStyle(obj){
+	var tobj = document.getElementById(obj);
+	if(tobj.style.display == '') 
+		tobj.style.display = 'none';
+	else
+		tobj.style.display = '';
+}
+</script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
-
-
-
 <body class='contrast-red '>
 <?php 
     include_once 'header.php';
@@ -224,10 +222,13 @@ function isEqual($id, $ids){
     </h1>
     <div class='pull-right'>
         <div class='btn-group'>
-            <button class='btn btn-warning cancel' type='back' id="back">
-                <i class='icon-ban-circle icon-white'></i>
-                <span>Back</span>
-            </button>
+            <a href="#" class="btn btn-white hidden-phone">Last month</a>
+            <a href="#" class="btn btn-white">Last week</a>
+            <a href="#" class="btn btn-white ">Today</a>
+            <a href="#" class="btn btn-white" id="daterange"><i class='icon-calendar'></i>
+                <span class='hidden-phone'>Custom</span>
+                <b class='caret'></b>
+            </a>
         </div>
     </div>
 </div>
@@ -235,136 +236,86 @@ function isEqual($id, $ids){
     <a class='close' data-dismiss='alert' href='#'>&times;</a>
     <strong id="msg"></strong>
 </div>
-    <form enctype="multipart/form-data" id='myform' style="margin-bottom: 0;" method="post" class="form form-horizontal" action="" accept-charset="UTF-8"><div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
-                <div class="control-group">
-                    <label for="inputText1" class="control-label">视频地址</label>
-                    <div class="controls">
-                        <input type="text" placeholder="视频地址" name="url" id='url' value="<?php echo @$video[VideoModel::_url];?>">
-                    </div>
-                </div>
-        <div class="control-group">
-                    <label for="inputText1" class="control-label">标题</label>
-                    <div class="controls">
-                        <input type="text" placeholder="标题" name="title" id='title' value="<?php echo @$video[VideoModel::_name];?>">
-                    </div>
-                </div>
-        <div class="control-group">
-                    <label for="inputText1" class="control-label">缩略图</label>
-                    <div class="controls" id="logo_view">
-                        <image border="0" src="<?php echo $video[VideoModel::_thumbnails]?>" style="float:left;margin-right:10px;max-height:30px;"/>
-                    </div>
-                </div> 
-        <div class="control-group" id="logurl" >
-                    <label for="inputText2" class="control-label">缩略图地址</label>
-                    <div class="controls">
-                        <input type="text" placeholder="请输缩略图地址" name="logourl" id="logourl" value="<?php echo $video[VideoModel::_thumbnails]?>">
-                    </div>
-                </div>
-        
-        <div class="control-group">
-                    <label class="control-label">解说</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <div class='span6'>
-                                <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入解说...' name='descant' id='descant' >
-                                        <optgroup label='选择解说'>
-                                            <option value="0"/>请选择
-                                            <?php 
-                                                foreach($descants as $arr){
-                                                    echo '<option value=\''. $arr[DescantModel::_id] .'\' '. isEqual($arr[DescantModel::_id], $video[VideoModel::_descant]) . '/>' . $arr[DescantModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+    
+    <table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;">
+		<tr>
+			<td height="30" style="cursor:pointer;font-size:14px;font-weight:bold;background-color:#CCCCCC;padding-left:5px;" onclick="setStyle('ibody');">
+				<?php if($action != "update"){?>添加<?php echo $title; }else{?>修改<?php echo $title;}?>
+				<span style="font-size:14px;font-weight:bold;color:#FF0000;padding-left:10px;"><?php echo $msg;?></span>
+			</td>
+		</tr>
+        <tr id="ibody" style="display:<?php if($action == ''){ echo 'none';} ?>">
+			<td>
+				<form name="ibodyform" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post" enctype="multipart/form-data">
+					<table width="100%" cellpadding="1" cellspacing="1">
+						<tr>
+							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>名称：</td>
+							<td height="30"><input type="text" name="name" value="<?php echo @$arrs[FixturesGroupModel::_name];?>" style="width:250px;margin:0"/></td>
+						</tr>
+                        <tr>
+							<td height="30" width="45%" align="right" style="padding-right:10px;"><?php echo $title;?>备注：</td>
+							<td height="30"><input type="text" name="remark" value="<?php echo @$arrs[FixturesGroupModel::_remark];?>" style="width:250px;margin:0"/></td>
+						</tr>
+						<tr>
+							<td colspan="2" height="30" align="center">
+							<?php if($action == "update"){?>
+								<input type="hidden" name="id" value="<?php echo $id;?>"/>
+								<input type="submit" name="update" value="修改"/>
+								<input type="submit" name="cancel" value="取消"/>
+							<?php }else{?>
+								<input type="hidden" name="action" value="<?php echo $action;?>"/>
+								<input type="submit" name="add" value="提交"/>
+							<?php }?>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</td>
+		</tr>
+	</table><br/>	
+	<?php 
+    
+    @$param = $key . '=' . $_REQUEST[$key];
+	$fixturesGroupModel = new FixturesGroupModel();
+    $count = $fixturesGroupModel->getCounts($_REQUEST[$key]);
+	$page = new page($count, $_REQUEST, $param);
 
-                    </div>
-                </div>  
-        
-        <div class="control-group">
-                    <label class="control-label">地图</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <div class='span6'>
-                                <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入地图...' name='map' id='map' >
-                                        <optgroup label='选择地图'>
-                                            <option value="0"/>请选择
-                                            <?php 
-                                                foreach($maps as $arr){
-                                                    echo '<option value=\''. $arr[MapModel::_id] .'\' '. isEqual($arr[MapModel::_id], $video[VideoModel::_map]) . '/>' . $arr[MapModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div> 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-primary" id="save" onclick='onSubmit();'>
-                        <i class="icon-save"></i>
-                        Save
-                    </button>
-                    <button type="button" class="btn" id="cancel" onclick='return reload();'>Cancel</button>
-                </div>
-        <input type='hidden' name='tags' id='tags' value="" />
-        <input type='hidden' value='<?php echo $id;?>' id='cid' />
-    </form>
-    <input type='hidden' id='r' value="<?php echo $_REQUEST['r']; ?>" />
-       
+    $fixturesGroupModel->setPage($page);
+    $result = $fixturesGroupModel->getList();
+    
+    
+	?>
+	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
+    
+    
+	<table width="100%" cellpadding="1" cellspacing="1" style="border:1px solid #CCCCCC;text-align:center">
+		<tr bgcolor="<?php echo $page->getTitleColor();?>">
+			<th height="30">ID</th>
+			<th><?php echo $title;?>名称</th>
+			<th>备注</th>
+            <th title="点击操作">操作</th>
+		</tr>
+		<?php
+            foreach ($result as $arr){
+		?>
+            <tr bgcolor="<?php echo $page->getColor();?>">
+                <td height="25"><?php echo $arr[FixturesGroupModel::_id]; ?></td>
+                <td><?php echo $arr[FixturesGroupModel::_name]; ?></td>
+                <td><?php echo $arr[FixturesGroupModel::_remark]; ?></td>
+                <td>
+                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[FixturesGroupModel::_id] . $page->getParams();?>">修改</a>
+                </td>
+            </tr>
+		<?php 
+            }
+		?>
+	</table>
+    
 </div>
 </div>
 </div>
 </section>
-<script src='js/common.js' type='text/javascript'></script>
-<script type="text/javascript">
-function onSubmit(){
-    if($('#name').val() == '' || 
-            $('#gameid').val() == '' ||
-            $('#nickname').val() == ''
-            ){
-        showError('请填写完整应用信息...');
-        return false;
-    }
-    $.ajax({
-            type:   "post",
-            url :   "script/api.php",
-            dataType:   'json',
-            data:   'action=modifiedVideo&id=' + $('#cid').val() + '&url=' + $('#url').val() + '&title=' + $('#title').val() 
-            + '&logourl=' + $('#logourl').val() + '&descant=' + $('#descant').val() + '&map=' + $('#map').val()
-            ,
-            success:function(json){
-                if(json == null){
-                    showError("系统繁忙请稍候再试..");
-                    return;
-                }
-                if(json.result == '0' ){
-                    showError("操作成功...");
-                    
-				}else{
-					if(json.result == '1'){
-						showError("操作失败...");
-					}else{
-					  	showError("系统繁忙请稍候再试...");
-					} 
-				}
-			}
-    });
-    
-}
-function reload(){
-    window.location.href = document.getElementById('r').value;
-    return false;
-}
+</div>   
 
-
-</script>
-</div>
 </body>
 </html>

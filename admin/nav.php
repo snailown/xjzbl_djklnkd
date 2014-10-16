@@ -45,18 +45,6 @@
             </a>
         </li>
         <li class=''>
-            <a href='game_item.php'>
-                <i class='icon-caret-right'></i>
-                <span>栏目</span>
-            </a>
-        </li>
-        <li class=''>
-            <a href='game_time_item.php'>
-                <i class='icon-caret-right'></i>
-                <span>年度栏目</span>
-            </a>
-        </li>
-        <li class=''>
             <a href='game_pick.php'>
                 <i class='icon-caret-right'></i>
                 <span>采集</span>
@@ -97,7 +85,60 @@
         </li>
     </ul>
 </li>
-
+<li>
+    <a class='dropdown-collapse ' href='#'>
+        <i class='icon-calendar'></i>
+        <span>栏目设置</span>
+        <i class='icon-angle-down angle-down'></i>
+    </a>
+    <ul class='nav nav-stacked'>
+        <li class=''>
+            <a href='game_item.php'>
+                <i class='icon-caret-right'></i>
+                <span>栏目</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_time_item.php'>
+                <i class='icon-caret-right'></i>
+                <span>年度栏目</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<li>
+    <a class='dropdown-collapse ' href='#'>
+        <i class='icon-star'></i>
+        <span>赛程设置</span>
+        <i class='icon-angle-down angle-down'></i>
+    </a>
+    <ul class='nav nav-stacked'>
+        <li class=''>
+            <a href='game_fixtures_list.php'>
+                <i class='icon-caret-right'></i>
+                <span>赛程列表</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_fixtures_group_list.php'>
+                <i class='icon-caret-right'></i>
+                <span>分组设置</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_group_list.php'>
+                <i class='icon-caret-right'></i>
+                <span>比赛场次列表</span>
+            </a>
+        </li>
+        <li class=''>
+            <a href='game_matchs_list.php'>
+                <i class='icon-caret-right'></i>
+                <span>比赛列表</span>
+            </a>
+        </li>
+    </ul>
+</li>
 <li>
     <a class='dropdown-collapse ' href='#'>
         <i class='icon-cog'></i>

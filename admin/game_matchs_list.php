@@ -2,38 +2,59 @@
 include_once 'script/common.php';
 requireLogin();
 
-$title = '栏目';
+$title = '比赛';
 
-include_once 'model/ItemModel.php';
-include_once 'controller/ItemController.php';
+include_once 'model/MatchsModel.php';
+include_once 'controller/MatchsController.php';
+include_once 'model/PlayerModel.php';
+include_once 'model/TeamModel.php';
+include_once 'model/VideoModel.php';
+include_once 'model/GroupModel.php';
+
 include_once 'script/page.class.php';
 
-//print_r($_REQUEST);
 
-$itemModel = new ItemModel();
-$types = $itemModel->getParents();
+$groupModel = new GroupModel();
+$groups = $groupModel->getAllList();
+
+$playerModel = new PlayerModel();
+$players = $playerModel->getAllList();
+
+$teamModel = new TeamModel();
+$teams = $teamModel->getAllList();
+
+$videoModel = new VideoModel();
+$videos = $videoModel->getAllNameList();
+
+function getItem($id, $key, $item){
+    $result = '--';
+    foreach($item as $arr){
+        if($arr['id'] == $id){
+            $result = $arr[$key];
+            break;
+        }
+    }
+    return $result;
+}
 
 $action = $_REQUEST['action'];
 $id = $_REQUEST['id'];
 if($action == 'update'){
-    if($itemModel == null){
-        $itemModel = new ItemModel();
-    }
-    $arrs = $itemModel->getItem($id);
+    $matchsModel = new MatchsModel();
+    $arrs = $matchsModel->get($id);
 //    print_r($arrs);
 }
 if($_REQUEST['add'] == '1'){//add
-    $itemController = new ItemController($_REQUEST, $_FILES);
-    $aaa = $itemController->addItem();
-    if($aaa > 0){
+    $matchsController = new MatchsController($_REQUEST, $_FILES);
+    if($matchsController->addMatchs() > 0){
         $msg = '添加成功';
     }else{
         $msg = '添加失败';
     }
 }
 if($_REQUEST['update'] == '1'){//update
-    $itemController = new ItemController($_REQUEST, $_FILES);
-    if($itemController->updateItem() > 0){
+    $matchsController = new MatchsController($_REQUEST, $_FILES);
+    if($matchsController->updateMatchs() > 0){
         $msg = '修改成功';
     }else{
         $msg = '修改失败';
@@ -209,10 +230,11 @@ function setStyle(obj){
 		tobj.style.display = '';
 }
 function onSubmit(){
-    if($('#name1').val() == '' || 
+    if($('#item').val() == '' || 
+            $('#time').val() == '' ||
             $('#name').val() == ''
             ){
-        showError('请填写完整栏目信息...');
+        showError('请填写完整赛程信息...');
         return false;
     }
     if($('#action').val() == 'update'){
@@ -283,25 +305,26 @@ function reload(){
 		</tr>
         <tr id="ibody" style="display:<?php if($action == ''){ echo 'none';} ?>">
 			<td>
-                <form enctype="multipart/form-data" id='myform' name="ibodyform" style="margin-bottom: 0;" method="post" class="form form-horizontal" action="<?php echo $_SERVER['PHP_SELF'];?>" accept-charset="UTF-8">
+				<form enctype="multipart/form-data" id='myform' name="ibodyform" style="margin-bottom: 0;" method="post" class="form form-horizontal" action="<?php echo $_SERVER['PHP_SELF'];?>" accept-charset="UTF-8">
                     <div style="margin:0;padding:0;display:inline"><input type="hidden" value="✓" name="utf8"><input type="hidden" value="CFC7d00LWKQsSahRqsfD+e/mHLqbaVIXBvlBGe/KP+I=" name="authenticity_token"></div>
 					
                     <div class="control-group">
-                        <label class="control-label">类型</label>
+                        <label class="control-label">比赛场次</label>
                         <div class="controls">
                             <div class="row-fluid">
                                 <div class='span6'>
                                     <div class='row-fluid'>
-                                        <select class='select2 input-block-level' placeholder='请输入类型...' name='name1' id='name1'>
-                                            <optgroup label='选择类型'>
+                                        <select class='select2 input-block-level' placeholder='请输入比赛场次...' name='group' id='group'>
+                                            <optgroup label='选择比赛场次'>
+                                                <option value="0" />请选择
                                                 <?php 
                                                 function isEqual($id, $ids){
                                                     if($id == $ids){
                                                         return 'selected';
                                                     }
                                                 }
-                                                foreach($types as $arr){
-                                                    echo '<option value=\''. $arr[ItemModel::_id] .'\' ' . isEqual($arr[ItemModel::_id], $arrs[ItemModel::_parent]) . ' />' . $arr[ItemModel::_name]; 
+                                                foreach($groups as $arr){
+                                                    echo '<option value=\''. $arr[GroupModel::_id] .'\' ' . isEqual($arr[GroupModel::_id], $arrs[MatchsModel::_group_id]) . ' />' . $arr[GroupModel::_name]; 
                                                 }
                                                 ?>
                                             </optgroup>
@@ -312,9 +335,101 @@ function reload(){
                         </div>
                     </div>
                     <div class="control-group">
-                        <label for="inputText1" class="control-label">名称</label>
+                        <label for="inputText1" class="control-label">比赛名称</label>
                         <div class="controls">
-                            <input type="text" placeholder="栏目名称" name="name" id='name' value="<?php echo $arrs[ItemModel::_name]?>">
+                            <input type="text" placeholder="比赛名称" name="name" id='name' value="<?php echo $arrs[MatchsModel::_name]?>">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="inputText1" class="control-label">场次</label>
+                        <div class="controls">
+                            <input type="text" placeholder="场次" name="orders" id='orders' value="<?php echo $arrs[MatchsModel::_orders]?>">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">视频信息</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class='span6'>
+                                    <div class='row-fluid'>
+                                        <select class='select2 input-block-level' placeholder='请输入视频...' name='video' id='video'>
+                                            <optgroup label='选择视频'>
+                                                <option value="0" />请选择
+                                                <?php 
+                                                
+                                                foreach($videos as $arr){
+                                                    echo '<option value=\''. $arr[VideoModel::_id] .'\' ' . isEqual($arr[VideoModel::_id], $arrs[MatchsModel::_video_id]) . ' />' . $arr[VideoModel::_name]; 
+                                                }
+                                                ?>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">选手</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class='span6'>
+                                    <div class='row-fluid'>
+                                        <select class='select2 input-block-level' placeholder='请输入选手...' name='player1' id='player1' style="width:200px;">
+                                            <optgroup label='选择选手'>
+                                                <option value="0"/>请选择
+                                                <?php 
+                                                    foreach($players as $arr){
+                                                        echo '<option value=\''. $arr[PlayerModel::_id] .'\' ' . isEqual($arr[PlayerModel::_id], $arrs[MatchsModel::_player_one]) . ' />' . $arr[PlayerModel::_name]; 
+                                                    }
+                                                ?>
+                                            </optgroup>
+                                        </select> 
+                                        VS
+                                        <select class='select2 input-block-level' placeholder='请输入选手...' name='player2' id='player2' style="width:200px;">
+                                            <optgroup label='选择选手'>
+                                                <option value="0"/>请选择
+                                                <?php 
+                                                    foreach($players as $arr){
+                                                        echo '<option value=\''. $arr[PlayerModel::_id] .'\' ' . isEqual($arr[PlayerModel::_id], $arrs[MatchsModel::_player_two]) . ' />' . $arr[PlayerModel::_name]; 
+                                                    }
+                                                ?>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">战队</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class='span6'>
+                                    <div class='row-fluid'>
+                                        <select class='select2 input-block-level' placeholder='请输入战队...' name='team1' id='team1' style="width:200px;">
+                                            <optgroup label='选择战队'>
+                                                <option value="0"/>请选择
+                                                <?php 
+                                                    foreach($teams as $arr){
+                                                        echo '<option value=\''. $arr[TeamModel::_id] .'\' ' . isEqual($arr[TeamModel::_id], $arrs[MatchsModel::_team_one]) . ' />' . $arr[TeamModel::_name]; 
+                                                    }
+                                                ?>
+                                            </optgroup>
+                                        </select> 
+                                        VS
+                                        <select class='select2 input-block-level' placeholder='请输入战队...' name='team2' id='team2' style="width:200px;">
+                                            <optgroup label='选择战队'>
+                                                <option value="0" />请选择
+                                                <?php 
+                                                    foreach($teams as $arr){
+                                                        echo '<option value=\''. $arr[TeamModel::_id] .'\' ' . isEqual($arr[TeamModel::_id], $arrs[MatchsModel::_team_two]) . ' />' . $arr[TeamModel::_name]; 
+                                                    }
+                                                ?>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -336,27 +451,14 @@ function reload(){
 	<?php 
     
     @$param = $key . '=' . $_REQUEST[$key];
-	$itemModel = new ItemModel();
-    $count = $itemModel->getCounts($_REQUEST[$key]);
+	$matchsModel = new MatchsModel();
+    $count = $matchsModel->getCounts($_REQUEST[$key]);
 	$page = new page($count, $_REQUEST, $param);
 
-    $itemModel->setPage($page);
-    $result = $itemModel->getList();
+    $matchsModel->setPage($page);
+    $result = $matchsModel->getList();
     
-    function getParentName($id, $type_arr){
-        $result = '--';
-        $id = intval($id);
-        if($id == 0){
-            return $result;
-        }
-        foreach($type_arr as $arr){
-            if($arr[ItemModel::_id] == $id){
-                $result = $arr[ItemModel::_name];
-                break;
-            }
-        }
-        return $result;
-    }
+    
 	?>
 	<div class="pages" style="float:right;"><?php $page->showPage();//显示分页信息?></div>
     
@@ -365,25 +467,26 @@ function reload(){
 		<tr bgcolor="<?php echo $page->getTitleColor();?>">
 			<th height="30">ID</th>
 			<th><?php echo $title;?>名称</th>
-			<th>所属栏目</th>
-            <th>支持年度栏目</th>
+			<th>场次名称</th>
+            <th>场次</th>
+            <th>视频地址</th>
+            <th>选手</th>
+            <th>战队</th>
             <th title="点击操作">操作</th>
 		</tr>
 		<?php
             foreach ($result as $arr){
 		?>
             <tr bgcolor="<?php echo $page->getColor();?>">
-                <td height="25"><?php echo $arr[ItemModel::_id]; ?></td>
-                <td><?php echo $arr[ItemModel::_name]; ?></td>
-                <td><?php echo getParentName($arr[ItemModel::_parent], $types); ?></td>
-                <td><?php echo $arr[ItemModel::_have_time] == '1' ? '是' : '否'; ?></td>
+                <td height="25"><?php echo $arr[MatchsModel::_id]; ?></td>
+                <td><?php echo $arr[MatchsModel::_name]; ?></td>
+                <td><?php echo getItem($arr[MatchsModel::_group_id], GroupModel::_name, $groups) ; ?></td>
+                <td><?php echo $arr[MatchsModel::_orders];?></td>
+                <td><a href="<?php echo getItem($arr[MatchsModel::_video_id], VideoModel::_url, $videos)?>"><?php echo getItem($arr[MatchsModel::_video_id], VideoModel::_name, $videos)?></a></td>
+                <td><?php echo getItem($arr[MatchsModel::_player_one], PlayerModel::_name, $players) . ' VS ' . getItem($arr[MatchsModel::_player_two], PlayerModel::_name, $players);?></td>
+                <td><?php echo getItem($arr[MatchsModel::_team_one], TeamModel::_name, $teams) . ' VS ' . getItem($arr[MatchsModel::_team_two], TeamModel::_name, $teams);?></td>
                 <td>
-                    <?php 
-                        if($arr[ItemModel::_parent] > 0){
-                    ?>
-                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[ItemModel::_id] . $page->getParams();?>">修改</a>
-                        
-                    <?php }else{ echo '--';} ?>
+                    <a href="<?php echo $_SERVER['PHP_SELF'];?>?action=update&id=<?php echo $arr[MatchsModel::_id] . $page->getParams();?>">修改</a>
                 </td>
             </tr>
 		<?php 

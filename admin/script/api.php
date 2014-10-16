@@ -162,20 +162,17 @@ else if($action == 'modifiedVideo'){
     $id = @intval(@$_REQUEST['id']);
     $name = @$_REQUEST['title'];
     $url = @$_REQUEST['url'];
-    $palyer1 = @intval(@$_REQUEST['player1']);
-    $palyer2 = @intval(@$_REQUEST['player2']);
-    $team1 = @intval(@$_REQUEST['team1']);
-    $team2 = @intval(@$_REQUEST['team2']);
+
     $map = @intval(@$_REQUEST['map']);
     $descant = @intval(@$_REQUEST['descant']);
     $logo = @$_REQUEST['logourl'];
 //    echo json_encode(array('result'=>$_REQUEST));exit(0);
-    if($name == '' || $url == '' || $palyer1 == '' || $palyer2 == '' || $team1 == '' || $team2 == '' || $map == '' || $descant == '' ){
+    if($name == '' || $url == '' || $map == '' || $descant == '' ){
         echo json_encode(array('result'=>'2'));
         exit(0);
     }
     $videoMode = new VideoModel();
-    $result = $videoMode->update($id, $name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $logo);
+    $result = $videoMode->update($id, $name, $url, $map, $descant, $logo);
     if($result){
         echo json_encode(array('result'=>'0'));exit(0);
     }

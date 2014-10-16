@@ -26,14 +26,11 @@ class VideoController extends BaseController{
         //1.接收参数
         $name = @$this->args['title'];
         $url = @$this->args['url'];
-        $palyer1 = @intval(@$this->args['player1']);
-        $palyer2 = @intval(@$this->args['player2']);
-        $team1 = @intval(@$this->args['team1']);
-        $team2 = @intval(@$this->args['team2']);
+
         $map = @intval(@$this->args['map']);
         $descant = @intval(@$this->args['descant']);
         
-        if($name == '' || $url == '' || $palyer1 == '' || $palyer2 == '' || $team1 == '' || $team2 == '' || $map == '' || $descant == '' ){
+        if($name == '' || $url == '' || $map == '' || $descant == '' ){
             return false;
         }
         //2.准备数据
@@ -45,7 +42,7 @@ class VideoController extends BaseController{
         }
         //3.插入数据
         $videoMode = new VideoModel();
-        $result = $videoMode->add($name, $url, $palyer1, $palyer2, $team1, $team2, $map, $descant, $logo);
+        $result = $videoMode->add($name, $url, $map, $descant, $logo);
         if($result == false || $result == null){
             return false;
         }

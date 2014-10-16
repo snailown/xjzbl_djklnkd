@@ -11,14 +11,13 @@ include_once 'BaseModel.php';
  *
  * @author koudejian
  */
-class ItemModel extends BaseModel{
-    const _table = 'starcraft_video_item';
+class GroupModel extends BaseModel{
+    const _table = 'starcraft_group';
     
     const _id = 'id';
     const _name = 'name';
-    const _parent = 'parent';
-    const _have_time = 'have_time';
-//    const _final_name = 'final_name';
+    const _name_id = 'name_id';
+    const _fixtures_id = 'fixtures_id';
     
     private $key = '';
     public function __construct(){
@@ -46,45 +45,47 @@ class ItemModel extends BaseModel{
         return $this->db->doSql($sql);
     }
     public function getAllList(){
-        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
+        return $this->db->fetch(self::_table, '', '', '', '*' );
     }
     
-    public function getItemList($id=0){
-        return $this->db->fetch(self::_table, self::_parent . '= \''.$id.'\' and ' . self::_have_time . '=\'0\'' , '', '', self::_id . ',' . self::_name );
+    public function add($name, $fixtures, $nameId){
+        return $this->db->insert(self::_table, array(self::_name => $name, self::_fixtures_id => $fixtures, self::_name_id => $nameId));
     }
-    public function getItemTimeList($id=0){
-        return $this->db->fetch(self::_table, self::_parent . '= \''.$id.'\' and ' . self::_have_time . '=\'1\'' , '', '', self::_id . ',' . self::_name );
-    }
-    
-    public function add($name, $parent, $have_time){
-        return $this->db->insert(self::_table, array(self::_name => $name, self::_parent => $parent, self::_have_time => $have_time));
-    }
-    public function update($id, $name, $parent, $have_time){
+    public function update($id, $name, $fixtures, $nameId){
         $id = intval($id);
         if($id == 0){
             return false;
         }
         $data = array(
             self::_name => $name,
-            self::_parent => $parent,
-            self::_have_time => $have_time,
+            self::_fixtures_id => $fixtures, 
+            self::_name_id => $nameId,
         );
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
     
-    public function getItem($id){
+    public function get($id){
         $id = intval($id);
         if($id == 0){
             return null;
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
-    public function getParents(){
-        return $this->db->fetch(self::_table, array(self::_parent => '0'), '', '', self::_id . ',' . self::_name );
+    public function getGroupName($id){
+        $group = $this->get($id);
+        if($group != null){
+            return $group[self::_name];
+        }else{
+            return '--';
+        }
     }
-    
-    public function getTimeItems(){
-        return $this->db->fetch(self::_table, self::_parent. ' > \'0\' and ' . self::_have_time . ' = \'1\'', '', '', self::_id . ',' . self::_name );
+    public function getFixturesId($id){
+        $group = $this->get($id);
+//        print_r($group);
+        if($group != null){
+            return $group[self::_fixtures_id];
+        }else{
+            return 0;
+        }
     }
-    
 }

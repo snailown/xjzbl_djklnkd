@@ -11,14 +11,20 @@ include_once 'BaseModel.php';
  *
  * @author koudejian
  */
-class ItemModel extends BaseModel{
-    const _table = 'starcraft_video_item';
+class MatchsModel extends BaseModel{
+    const _table = 'starcraft_matchs';
     
     const _id = 'id';
     const _name = 'name';
-    const _parent = 'parent';
-    const _have_time = 'have_time';
-//    const _final_name = 'final_name';
+    const _group_id = 'group_id';
+    const _fixtures_id = 'fixtures_id';
+    const _orders = 'orders';
+    const _player_one = 'player_one_id';
+    const _player_two = 'player_two_id';
+    const _team_one = 'team_one_id';
+    const _team_two = 'team_two_id';
+    
+    const _video_id = 'video_id';
     
     private $key = '';
     public function __construct(){
@@ -46,45 +52,56 @@ class ItemModel extends BaseModel{
         return $this->db->doSql($sql);
     }
     public function getAllList(){
-        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
+        return $this->db->fetch(self::_table, '', '', '', '*' );
     }
     
-    public function getItemList($id=0){
-        return $this->db->fetch(self::_table, self::_parent . '= \''.$id.'\' and ' . self::_have_time . '=\'0\'' , '', '', self::_id . ',' . self::_name );
+    public function add($name, $group, $fixtures, $orders, $palyer1, $palyer2, $team1, $team2, $video){
+        return $this->db->insert(self::_table, 
+            array(
+                self::_name => $name,
+                self::_group_id => $group, 
+                self::_fixtures_id => $fixtures,
+                self::_orders => $orders,
+                self::_player_one => $palyer1, 
+                self::_player_two => $palyer2,
+                self::_team_one => $team1,
+                self::_team_two => $team2, 
+                self::_video_id => $video,
+            )
+                );
     }
-    public function getItemTimeList($id=0){
-        return $this->db->fetch(self::_table, self::_parent . '= \''.$id.'\' and ' . self::_have_time . '=\'1\'' , '', '', self::_id . ',' . self::_name );
-    }
-    
-    public function add($name, $parent, $have_time){
-        return $this->db->insert(self::_table, array(self::_name => $name, self::_parent => $parent, self::_have_time => $have_time));
-    }
-    public function update($id, $name, $parent, $have_time){
+    public function update($id, $name, $group, $fixtures, $orders, $palyer1, $palyer2, $team1, $team2, $video){
         $id = intval($id);
         if($id == 0){
             return false;
         }
         $data = array(
             self::_name => $name,
-            self::_parent => $parent,
-            self::_have_time => $have_time,
+            self::_group_id => $group, 
+            self::_fixtures_id => $fixtures,
+            self::_orders => $orders,
+            self::_player_one => $palyer1, 
+            self::_player_two => $palyer2,
+            self::_team_one => $team1,
+            self::_team_two => $team2, 
+            self::_video_id => $video,
         );
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
     
-    public function getItem($id){
+    public function get($id){
         $id = intval($id);
         if($id == 0){
             return null;
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
-    public function getParents(){
-        return $this->db->fetch(self::_table, array(self::_parent => '0'), '', '', self::_id . ',' . self::_name );
+    public function getMatchsName($id){
+        $fixtures = $this->get($id);
+        if($fixtures != null){
+            return $fixtures[self::_name];
+        }else{
+            return '--';
+        }
     }
-    
-    public function getTimeItems(){
-        return $this->db->fetch(self::_table, self::_parent. ' > \'0\' and ' . self::_have_time . ' = \'1\'', '', '', self::_id . ',' . self::_name );
-    }
-    
 }

@@ -3,8 +3,7 @@ include_once 'script/common.php';
 requireLogin();
 $title = '添加视频';
 
-include_once 'model/PlayerModel.php';
-include_once 'model/TeamModel.php';
+
 include_once 'model/DescantModel.php';
 include_once 'model/MapModel.php';
 
@@ -14,11 +13,6 @@ $maps = $mapModel->getAllList();
 $descantModel = new DescantModel();
 $descants = $descantModel->getAllList();
 
-$playerModel = new PlayerModel();
-$players = $playerModel->getAllList();
-
-$teamModel = new TeamModel();
-$teams = $teamModel->getAllList();
 ?>
 <!DOCTYPE html>
 <html>
@@ -249,72 +243,7 @@ $teams = $teamModel->getAllList();
                         <input type="file" placeholder="请选择缩略图" name="logfile">
                     </div>
                 </div>
-        <div class="control-group">
-                    <label class="control-label">选手</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <div class='span6'>
-                                <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player1' id='player1' style="width:200px;">
-                                        <optgroup label='选择选手'>
-                                            <option value="0"/>请选择
-                                            <?php 
-                                                foreach($players as $arr){
-                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' />' . $arr[PlayerModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select> 
-                                    VS
-                                    <select class='select2 input-block-level' placeholder='请输入选手...' name='player2' id='player2' style="width:200px;">
-                                        <optgroup label='选择选手'>
-                                            <option value="0"/>请选择
-                                            <?php 
-                                                foreach($players as $arr){
-                                                    echo '<option value=\''. $arr[PlayerModel::_id] .'\' />' . $arr[PlayerModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>   
-        <div class="control-group">
-                    <label class="control-label">战队</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <div class='span6'>
-                                <div class='row-fluid'>
-                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team1' id='team1' style="width:200px;">
-                                        <optgroup label='选择战队'>
-                                            <option value="0"/>请选择
-                                            <?php 
-                                                foreach($teams as $arr){
-                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' />' . $arr[TeamModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select> 
-                                    VS
-                                    <select class='select2 input-block-level' placeholder='请输入战队...' name='team2' id='team2' style="width:200px;">
-                                        <optgroup label='选择战队'>
-                                            <option value="0" />请选择
-                                            <?php 
-                                                foreach($teams as $arr){
-                                                    echo '<option value=\''. $arr[TeamModel::_id] .'\' />' . $arr[TeamModel::_name]; 
-                                                }
-                                            ?>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>  
+ 
         <div class="control-group">
                     <label class="control-label">解说</label>
                     <div class="controls">
@@ -379,10 +308,6 @@ $teams = $teamModel->getAllList();
 function onSubmit(){
     if($('#url').val() == '' || 
             $('#title').val() == '' ||
-            $('#player1').val() == '' ||
-            $('#player2').val() == '' ||
-            $('#team1').val() == '' ||
-            $('#team2').val() == '' ||
             $('#descant').val() == '' ||
             $('#map').val() == '' 
             ){
