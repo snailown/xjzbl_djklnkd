@@ -11,6 +11,11 @@ include_once DOCUMENT_ROOT . '/model/TeamImageModel.php';
 include_once DOCUMENT_ROOT . '/model/TeamModel.php';
 include_once DOCUMENT_ROOT . '/model/TeamImageModel.php';
 include_once DOCUMENT_ROOT . '/model/VideoModel.php';
+
+include_once DOCUMENT_ROOT . '/model/VideoModel.php';
+include_once DOCUMENT_ROOT . '/model/ItemModel.php';
+include_once DOCUMENT_ROOT . '/model/ItemTimeModel.php';
+
 $action = $_REQUEST['action'];
 if($action == 'userLogin'){//用户登录
     //1.接收参数
@@ -187,6 +192,46 @@ else if($action == 'pickVideo'){
     }else{
         echo json_encode(array('result' => '0'));exit(0);
     }
+}else if($action == 'uploadVideoInfo'){
+    $title = $_REQUEST['title'];
+    $data = $_REQUEST['data'];
+    $have_time = $_REQUEST['havetime'];
+    $times = $_REQUEST['time'];
+    $count = 0;
+    if($title == '' || $data == null){
+        echo '1';exit;
+    }
+    $itemModel = new ItemModel();
+    $item = $itemModel->getPickId($title, $have_time);
+    $time = 0;
+    if($times == ''){//专辑
+        $itemTimeModel = new ItemTimeModel();
+        $time = $itemTimeModel->getPickId($times);
+    }
+    $arr = explode('#item#', $data);
+    $videoModel = new VideoModel();
+    foreach($arr as $line){
+        //rCraft2 ArtworkTrailer#slip#
+        //http%3A%2F%2Fv.youku.com%2Fv_show%2Fid_XMjcwNjI1MzA0.html%3Ff%3D5654073#slip#
+        //02:14#slip#
+        //http%3A%2F%2Fg2.ykimg.com%2F0100641F464B404375D617009F571292BA61DB-A52C-EBDF-3A1B-E9BD7F86A5DD
+        if($line == ''){
+            continue;
+        }
+        $arrs = explode('#slip#', $line);
+        if(count($arrs) == 4 ){
+            $id = $videoModel->addPick($arrs[0], $arrs[1], $arrs[2], $arrs[3], $item, $time);
+            if($id > 0){
+                $count++;
+            }
+        }
+    }
+    if($count > 0){
+        echo '0';exit;
+    }else{
+        echo '2';exit;
+    }
+    
 }
 
 ?>

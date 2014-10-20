@@ -70,4 +70,16 @@ class ItemTimeModel extends BaseModel{
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
+    
+    public function getPickId($time){
+        if($time == ''){
+            return 0;
+        }
+        $item = $this->db->fetchOne(self::_table, array(self::_name => $time));
+        if(count($item) > 0){
+            return $item[self::_id];
+        }else{
+            return $this->add($time, $time);
+        }
+    }
 }

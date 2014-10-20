@@ -82,6 +82,17 @@ class VideoModel extends BaseModel{
                     self::_thumbnails => $thumbnails,
                 ));
     }
+    public function addPick($name, $url, $during, $thumbnails, $times = 0, $item = 0){
+        return $this->db->insert(self::_table, 
+                array(
+                    self::_name => $name, 
+                    self::_url => $url,
+                    self::_during => $during,
+                    self::_thumbnails => $thumbnails,
+                    self::_times => $times,
+                    self::_item_id => $item,
+                ));
+    }
     
     public function update($id, $name, $url, $map, $descant, $thumbnails=''){
         $id = intval($id);

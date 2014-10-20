@@ -87,4 +87,16 @@ class ItemModel extends BaseModel{
         return $this->db->fetch(self::_table, self::_parent. ' > \'0\' and ' . self::_have_time . ' = \'1\'', '', '', self::_id . ',' . self::_name );
     }
     
+    
+    public function getPickId($title, $time){
+        if($title == ''){
+            return 0;
+        }
+        $item = $this->db->fetchOne(self::_table, array(self::_name => $title));
+        if(count($item) > 0){
+            return $item[self::_id];
+        }else{
+            return $this->add($title, '2', $time == '' ? '0' : '1');
+        }
+    }
 }
