@@ -12,7 +12,6 @@ include_once DOCUMENT_ROOT . '/model/TeamModel.php';
 include_once DOCUMENT_ROOT . '/model/TeamImageModel.php';
 include_once DOCUMENT_ROOT . '/model/VideoModel.php';
 
-include_once DOCUMENT_ROOT . '/model/VideoModel.php';
 include_once DOCUMENT_ROOT . '/model/ItemModel.php';
 include_once DOCUMENT_ROOT . '/model/ItemTimeModel.php';
 
@@ -184,7 +183,7 @@ else if($action == 'modifiedVideo'){
     echo json_encode(array('result'=>'4'));exit(0);
 }
 else if($action == 'pickVideo'){
-    $url = $_REQUEST['url'];
+    $url = @$_REQUEST['url'];
     if($url != ''){
         $command = 'sh /shell/pickVideo.sh ' . $url;
         $result = shell_exec($command);
@@ -193,12 +192,12 @@ else if($action == 'pickVideo'){
         echo json_encode(array('result' => '0'));exit(0);
     }
 }else if($action == 'uploadVideoInfo'){
-    $title = $_REQUEST['title'];
-    $data = $_REQUEST['data'];
-    $have_time = $_REQUEST['havetime'];
-    $times = $_REQUEST['time'];
+    $title = @$_REQUEST['title'];
+    $data = @$_REQUEST['data'];
+    $have_time = @$_REQUEST['havetime'];
+    $times = @$_REQUEST['time'];
     $count = 0;
-    if($title == '' || $data == null){
+    if($title == '' || $data == ''){
         echo '1';exit;
     }
     $itemModel = new ItemModel();
@@ -208,7 +207,7 @@ else if($action == 'pickVideo'){
         $itemTimeModel = new ItemTimeModel();
         $time = $itemTimeModel->getPickId($times);
     }
-    $arr = explode('#item#', $data);
+    $arr = explode('|item|', $data);
     $videoModel = new VideoModel();
     foreach($arr as $line){
         //rCraft2 ArtworkTrailer#slip#
@@ -218,7 +217,7 @@ else if($action == 'pickVideo'){
         if($line == ''){
             continue;
         }
-        $arrs = explode('#slip#', $line);
+        $arrs = explode('|slip|', $line);
         if(count($arrs) == 4 ){
             $id = $videoModel->addPick($arrs[0], $arrs[1], $arrs[2], $arrs[3], $item, $time);
             if($id > 0){
