@@ -200,6 +200,8 @@ else if($action == 'pickVideo'){
     if($title == '' || $data == ''){
         echo '1';exit;
     }
+    //echo $title;exit;
+    //print_r($_REQUEST);
     $itemModel = new ItemModel();
     $item = $itemModel->getPickId($title, $have_time);
     $time = 0;
@@ -207,6 +209,7 @@ else if($action == 'pickVideo'){
         $itemTimeModel = new ItemTimeModel();
         $time = $itemTimeModel->getPickId($times);
     }
+//    echo $time. "=" . $item;exit;
     $arr = explode('|item|', $data);
     $videoModel = new VideoModel();
     foreach($arr as $line){
@@ -220,7 +223,7 @@ else if($action == 'pickVideo'){
         $arrs = explode('|slip|', $line);
         if(count($arrs) == 4 ){
 //            print_r($arrs);
-            $id = $videoModel->addPick($arrs[0], $arrs[1], $arrs[2], $arrs[3], $item, $time);
+            $id = $videoModel->addPick($arrs[0], $arrs[1], $arrs[2], $arrs[3], $time, $item);
             if($id > 0){
                 $count++;
             }

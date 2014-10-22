@@ -89,6 +89,7 @@ class ItemModel extends BaseModel{
     
     
     public function getPickId($title, $time){
+        //echo $title . '=' . $time;
         if($title == ''){
             return 0;
         }

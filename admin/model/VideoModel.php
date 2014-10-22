@@ -23,6 +23,7 @@ class VideoModel extends BaseModel{
     const _during = 'during';
     const _times = 'times';
     const _item_id = 'item_id';
+    const _time_id = 'time_id';
     const _match_id = 'match_id';
     const _fixtures_id = 'fixtures_id';
     
@@ -83,13 +84,14 @@ class VideoModel extends BaseModel{
                 ));
     }
     public function addPick($name, $url, $during, $thumbnails, $times = 0, $item = 0){
+        //echo $times . "--" . $item;
         return $this->db->insert(self::_table, 
                 array(
                     self::_name => $name, 
                     self::_url => $url,
                     self::_during => $during,
                     self::_thumbnails => $thumbnails,
-                    self::_times => $times,
+                    self::_time_id => $times,
                     self::_item_id => $item,
                 ));
     }
