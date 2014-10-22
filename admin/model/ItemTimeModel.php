@@ -76,7 +76,7 @@ class ItemTimeModel extends BaseModel{
             return 0;
         }
         $item = $this->db->fetchOne(self::_table, array(self::_name => $time));
-        if(count($item) > 0){
+        if($item != 0){
             return $item[self::_id];
         }else{
             return $this->add($time, $time);

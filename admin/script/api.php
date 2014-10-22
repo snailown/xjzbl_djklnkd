@@ -203,7 +203,7 @@ else if($action == 'pickVideo'){
     $itemModel = new ItemModel();
     $item = $itemModel->getPickId($title, $have_time);
     $time = 0;
-    if($times == ''){//专辑
+    if($times != ''){//专辑
         $itemTimeModel = new ItemTimeModel();
         $time = $itemTimeModel->getPickId($times);
     }
@@ -219,6 +219,7 @@ else if($action == 'pickVideo'){
         }
         $arrs = explode('|slip|', $line);
         if(count($arrs) == 4 ){
+//            print_r($arrs);
             $id = $videoModel->addPick($arrs[0], $arrs[1], $arrs[2], $arrs[3], $item, $time);
             if($id > 0){
                 $count++;

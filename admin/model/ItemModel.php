@@ -93,10 +93,10 @@ class ItemModel extends BaseModel{
             return 0;
         }
         $item = $this->db->fetchOne(self::_table, array(self::_name => $title));
-        if(count($item) > 0){
+        if($item != null){
             return $item[self::_id];
         }else{
-            return $this->add($title, '2', $time == '' ? '0' : '1');
+            return $this->add($title, $time == '0' ? '1': '2', $time == '0' ? '0' : '1');
         }
     }
 }
