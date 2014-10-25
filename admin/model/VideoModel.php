@@ -83,9 +83,20 @@ class VideoModel extends BaseModel{
                     self::_thumbnails => $thumbnails,
                 ));
     }
+    /**
+     * 添加抓取视频
+     * @param type $name
+     * @param type $url
+     * @param type $during
+     * @param type $thumbnails
+     * @param type $times
+     * @param type $item
+     * @return type
+     */
     public function addPick($name, $url, $during, $thumbnails, $times = 0, $item = 0){
-        //echo $times . "--" . $item;
-        return $this->db->insert(self::_table, 
+        $video = $this->db->fetchOne(self::_table, array(self::_url => $url));
+        if($video == null){
+            return $this->db->insert(self::_table, 
                 array(
                     self::_name => $name, 
                     self::_url => $url,
@@ -94,6 +105,7 @@ class VideoModel extends BaseModel{
                     self::_time_id => $times,
                     self::_item_id => $item,
                 ));
+        }
     }
     
     public function update($id, $name, $url, $map, $descant, $thumbnails=''){
