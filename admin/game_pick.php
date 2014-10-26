@@ -217,13 +217,16 @@ $title = '采集优酷视频';
 </div>
 </div>
 </div>
+
 </section>
 <script src='js/common.js' type='text/javascript'></script>
 <script type="text/javascript">
+
 function onSubmit(){
     if($('#url').val() == '' ){
         showError('请填写视频URL信息...');
     }else{
+        showError('抓取任务已放到后台，请耐心等待...');
         $.ajax({
             type:   "post",
             url :   "script/api.php",
@@ -234,10 +237,10 @@ function onSubmit(){
                     showError("系统繁忙请稍候再试...");
                     return;
                 }
-                if(json.result.indexOf("pickdone") > 0 ){
+                if(json.result.lastIndexOf("pickdone") > 0 ){
                     showError("抓取成功...");
 				}else if(json.result.indexOf("pickrepick") > 0 ){
-                    showError("应用已经存在，请勿重复抓取...");
+                    showError("抓取视频已经存在，请勿重复抓取...");
                 }else{
                     showError("抓取失败...");
 				}
