@@ -11,13 +11,13 @@ include_once 'BaseModel.php';
  *
  * @author koudejian
  */
-class FixturesModel extends BaseModel{
-    const _table = 'starcraft_fixtures';
+class UserAppModel extends BaseModel{
+    const _table = 'starcraft_app_user';
     
     const _id = 'id';
     const _name = 'name';
-    const _item = 'item_id';
-    const _item_time = 'item_time_id';
+    const _remark = 'remark';
+    
     
     private $key = '';
     public function __construct(){
@@ -45,21 +45,20 @@ class FixturesModel extends BaseModel{
         return $this->db->doSql($sql);
     }
     public function getAllList(){
-        return $this->db->fetch(self::_table, '', '', '', '*' );
+        return $this->db->fetch(self::_table, '', '', '', self::_id . ',' . self::_name );
     }
     
-    public function add($name, $item, $itemTime){
-        return $this->db->insert(self::_table, array(self::_name => $name, self::_item => $item, self::_item_time => $itemTime));
+    public function add($name, $remark){
+        return $this->db->insert(self::_table, array(self::_name => $name, self::_remark => $remark));
     }
-    public function update($id, $name, $item, $itemTime){
+    public function update($id, $name, $remark){
         $id = intval($id);
         if($id == 0){
             return false;
         }
         $data = array(
             self::_name => $name,
-            self::_item => $item, 
-            self::_item_time => $itemTime,
+            self::_remark => $remark
         );
         return $this->db->update(self::_table, $data, array(self::_id => $id));
     }
@@ -71,30 +70,10 @@ class FixturesModel extends BaseModel{
         }
         return $this->db->fetchOne(self::_table, array(self::_id => $id));
     }
-    public function getFixturesName($id){
-        $fixtures = $this->get($id);
-        if($fixtures != null){
-            return $fixtures[self::_name];
-        }else{
-            return '--';
-        }
-    }
-    
-    public function getPageList($lid, $page=0, $start=0){
-        $lid = intval($lid);
-        $page = intval($page);
-        $start = intval($start);
-        if($lid == 0){
+    public function getByDevice($device_id){ 
+        if($device_id == ''){
             return null;
         }
-        $size = 20;
-        $limit = ($page*$size) . ', ' . $size;
-        $condition = self::_item . ' = ' . $lid;
-        if($start > 0){
-            $condition .= ' and ' . self::_id . ' < ' . $start;
-        }
-        $order = self::_id . ' desc ';
-        $field = self::_id . ', ' . self::_name ;
-        return $this->db->fetch(self::_table, $condition, $order, $limit, $field);
+        return $this->db->fetchOne(self::_table, array(self::_name => $device_id));
     }
 }

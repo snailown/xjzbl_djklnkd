@@ -100,4 +100,14 @@ class ItemModel extends BaseModel{
             return $this->add($title, $time == '0' ? '1': '2', $time == '0' ? '0' : '1');
         }
     }
+    
+    public function getPageList($type, $page=0, $start=0){
+        $pid = ($type == 'League') ? 2 : 1; //1，2对应数据库中联赛和专辑的id.
+        $size = 20;
+        $limit = ($page*$size) . ', ' . $size;
+        $condition = self::_parent . ' = \'' . $pid . '\' ' . ' and ' . self::_id . ' > ' . $start;
+        $order = self::_id . ' asc ';
+        $field = self::_id . ',' . self::_name;
+        return $this->db->fetch(self::_table, $condition, $order, $limit, $field);
+    }
 }

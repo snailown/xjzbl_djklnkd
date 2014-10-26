@@ -204,5 +204,23 @@ class PlayerModel extends BaseModel{
         }
         
         return false;
-    }   
+    }
+    
+    public function getPageList($lid, $page=0, $start=0){
+        $lid = intval($lid);
+        $page = intval($page);
+        $start = intval($start);
+        if($lid == 0){
+            return null;
+        }
+        $size = 12;
+        $limit = ($page*$size) . ', ' . $size;
+        $condition = self::_race . ' = ' . $lid;
+        if($start > 0){
+            $condition .= ' and ' . self::_id . ' < ' . $start;
+        }
+        $order = self::_id . ' desc ';
+        $field = self::_id . ', ' . self::_avatar . ', ' . self::_game_id . ', ' . self:: _nick;
+        return $this->db->fetch(self::_table, $condition, $order, $limit, $field);
+    }
 }

@@ -114,4 +114,17 @@ class TeamModel extends BaseModel{
         return $result;
     }
 
+    
+    public function getPageList($page=0, $start=0){
+        $page = intval($page);
+        $start = intval($start);
+        $size = 20;
+        $limit = ($page*$size) . ', ' . $size;
+        if($start > 0){
+            $condition .= ' and ' . self::_id . ' < ' . $start;
+        }
+        $order = self::_id . ' desc ';
+        $field = self::_id . ', ' . self::_name . ', ' . self::_logo;
+        return $this->db->fetch(self::_table, $condition, $order, $limit, $field);
+    }
 }

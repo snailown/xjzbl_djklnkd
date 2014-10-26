@@ -202,7 +202,7 @@ $title = '采集优酷视频';
                     <label for="inputText1" class="control-label">采集列表地址</label>
                     <div class="controls">
                         <input type="text" placeholder="采集列表地址" name="url" id="url" value="" title="采集网址需要以“http://www.youku.com/playlist_show”或者“http://www.soku.com/search_playlistdetail”开头...">
-                        <br/><span style="color:red;">*<span><span style="color:gray;">采集网址需要以“http://www.youku.com/playlist_show”或者“http://www.soku.com/search_playlistdetail”开头...</span>
+                        <br/><span style="color:red;">*<span><span style="color:gray;">采集网址需要以“http://www.youku.com/playlist_show”,“http://sc2.plu.cn/”或者“http://www.soku.com/search_playlistdetail”开头...</span>
                     </div>
                 </div>
                 

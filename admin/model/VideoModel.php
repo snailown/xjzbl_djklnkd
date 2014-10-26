@@ -26,7 +26,7 @@ class VideoModel extends BaseModel{
     const _time_id = 'time_id';
     const _match_id = 'match_id';
     const _fixtures_id = 'fixtures_id';
-    
+    const _count = 'counts';
     private $key = '';
     public function __construct(){
         parent::__construct(self::_table);
@@ -144,5 +144,24 @@ class VideoModel extends BaseModel{
                 );
             return $this->db->update(self::_table, $data, array(self::_id => $id));
         }
+    }
+    
+    
+    public function getListByItem($aid, $page=0, $start=0){
+        $aid = intval($aid);
+        $page = intval($page);
+        $start = intval($start);
+        if($aid == 0){
+            return null;
+        }
+        $size = 10;
+        $limit = ($page*$size) . ', ' . $size;
+        $condition = self::_item_id . ' = ' . $aid;
+        if($start > 0){
+            $condition .= ' and ' . self::_id . ' < ' . $start;
+        }
+        $order = self::_id . ' desc ';
+        $field = self::_id . ', ' . self::_name . ', ' . self::_url . ', ' . self::_thumbnails;
+        return $this->db->fetch(self::_table, $condition, $order, $limit, $field);
     }
 }

@@ -104,4 +104,38 @@ class MatchsModel extends BaseModel{
             return '--';
         }
     }
+    
+    public function getPageList($pid, $fid){
+        $pid = intval($pid);
+        $fid = intval($fid);
+        if($pid == 0 || $fid == 0){
+            return null;
+        }
+        $sql = 'select a.' . self::_name . ' as match_name, ' . 'a.' . self::_player_one . ', ' .  'a.' . self::_player_two 
+                . ', b.' .VideoModel::_name. ' as video_name, b.' . VideoModel::_url . ', b.' . VideoModel::_count 
+                . ' from ' . self::_table . ' as a, ' . VideoModel::_table . ' as b '
+                . ' where (a.' . self::_player_one . ' = ' . $pid . ' or a.' . self::_player_two . ' = ' . $pid . ')'
+                .' and a.' . self::_fixtures_id . ' = ' . $fid . ' and a.' . self::_video_id . ' = b.' . VideoModel::_id
+                . ' order by a.' . self::_id . ' asc ';
+        return $this->db->doSql($sql, 'many');
+    }
+    
+    public function getPlayerPageList($pid, $page=0, $start=0){
+        $pid = intval($pid);
+        $page = intval($page);
+        $start = intval($start);
+        if($pid == 0){
+            return null;
+        }
+        $size = 20;
+        $limit = ' limit ' . ($page*$size) . ', ' . $size;
+        $sql = 'select b.' .FixturesModel::_name. ', b.' . FixturesModel::_id 
+                . ' from ' . self::_table . ' as a, ' . FixturesModel::_table . ' as b '
+                . ' where (a.' . self::_player_one . ' = ' . $pid . ' or a.' . self::_player_two . ' = ' . $pid . ')'
+                .' and a.' . self::_fixtures_id . ' = b.' . FixturesModel::_id
+                . ' group by a.' . self::_fixtures_id
+                . ' order by a.' . FixturesModel::_id . ' asc '
+                .$limit;
+        return $this->db->doSql($sql, 'many');
+    }
 }
